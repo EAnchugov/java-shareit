@@ -22,7 +22,6 @@ public class ItemServiceImpl implements ItemService{
     @Override
     public ItemDto createItem(ItemDto itemDto, Long userId) {
         checkUser(userId);
-
         ItemDto itemDto1 = itemDto;
         itemDto1.setOwner(userId);
         return itemMapper.toItemDto(itemRepository.create(itemMapper.toItem(itemDto1)));
@@ -61,16 +60,24 @@ public class ItemServiceImpl implements ItemService{
     @Override
     public List<ItemDto> getAllItems(Long userId) {
             List <ItemDto> items = new ArrayList<>();
-            for (Item item : itemRepository.getAll(userId)) {
-                items.add(ItemMapper.toItemDto(item));
+            for (Item item : itemRepository.getAll()) {
+                if (item.getOwner().equals(userId)){
+                    items.add(ItemMapper.toItemDto(item));
+                }
             }
-            return items;
+        return items;
     }
     @Override
     public List<ItemDto> searchItem(String request) {
-        List <ItemDto> items = new ArrayList<>();
-        for (Item item : itemRepository.searchItem(request)) {
-            items.add(ItemMapper.toItemDto(item));
+        ArrayList<ItemDto> items = new ArrayList<>();
+        if (!request.isBlank()){
+            for (Item item :itemRepository.getAll()) {
+                if (item.getAvailable()&&
+                        item.getDescription().toLowerCase().contains(request.toLowerCase()) ||
+                        item.getName().toLowerCase().contains(request.toLowerCase())) {
+                    items.add(ItemMapper.toItemDto(item));
+                }
+            }
         }
         return items;
     }

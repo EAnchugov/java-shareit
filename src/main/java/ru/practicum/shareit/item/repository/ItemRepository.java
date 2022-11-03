@@ -8,5 +8,5 @@ public interface ItemRepository {
     public Item create(Item item);
     void update(Item item);
     Item getById(Long itemID);
-        List<Item> getAll();
+    List<Item> getAll();
 }

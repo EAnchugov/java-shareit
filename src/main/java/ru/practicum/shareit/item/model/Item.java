@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.NotBlank;
@@ -14,6 +12,8 @@ import javax.validation.constraints.NotNull;
 @Data
 @Slf4j
 @Builder
+@Getter
+@Setter
 public class Item {
     private Long id;
     @NotBlank

@@ -1,8 +1,6 @@
 package ru.practicum.shareit.user.repository;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;

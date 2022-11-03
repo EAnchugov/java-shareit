@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.userDTO.UserDTO;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +18,9 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
     public List<UserDTO> getAll() {
-        List <UserDTO> users = new ArrayList<>();
+        List<UserDTO> users = new ArrayList<>();
         for (User user : userRepository.getAll()) {
             users.add(UserMapper.toUserDTO(user));
         }
@@ -38,12 +38,15 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDTO(userRepository.create(user));
     }
 
-
     public UserDTO update(User user, Long id) {
         userDuplicateEmailCheck(user);
         User user1 = userRepository.getById(id);
-        if (user.getName() != null){user1.setName(user.getName());}
-        if (user.getEmail() != null){user1.setEmail(user.getEmail());}
+        if (user.getName() != null) {
+            user1.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            user1.setEmail(user.getEmail());
+        }
         return UserMapper.toUserDTO(userRepository.update(user1));
     }
 
@@ -51,20 +54,22 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(id);
     }
 
-    private void userDuplicateEmailCheck (User user){
+    private void userDuplicateEmailCheck(User user) {
         List<User> users = userRepository.getAll();
-        for (User u : users){
-            if(u.getEmail().equals(user.getEmail())){
+        for (User u : users) {
+            if (u.getEmail().equals(user.getEmail())) {
             throw new DuplicateEmailException("Email Duplicate");
             }
         }
     }
-    private void userEmailCheck(User user){
-        if (user.getEmail() == null){
+
+    private void userEmailCheck(User user) {
+        if (user.getEmail() == null) {
             throw new WrongParameterException("Email = null!");
         }
     }
-    private void userNameCheck(User user){
+
+    private void userNameCheck(User user) {
         if (user.getEmail() == null) {
             throw new WrongParameterException("Name = null!");
         }

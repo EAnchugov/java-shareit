@@ -7,7 +7,7 @@ import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepositoryImpl;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.util.ArrayList;
@@ -16,54 +16,44 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final ItemRepositoryImpl itemRepository;
+    private final ItemRepository itemRepository;
     private final UserServiceImpl userService;
-    private final ItemMapper itemMapper;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, Long userId) {
         checkUser(userId);
-        ItemDto itemDto1 = itemDto;
-        itemDto1.setOwner(userId);
-        return itemMapper.toItemDto(itemRepository.create(itemMapper.toItem(itemDto1)));
+        itemDto.setOwner(userId);
+        return ItemMapper.toItemDto(itemRepository.create(ItemMapper.toItem(itemDto)));
     }
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId) {
         checkUser(userId);
-        Item item1 = itemRepository.getById(itemId);
-        if (item1 != null) {
-            if (!(item1.getOwner().equals(userId))) {
+        Item item = itemRepository.getById(itemId);
+        if (item != null) {
+            if (!(item.getOwner().equals(userId))) {
                 throw new NotFoundException("Изменять может только владелец");
             }
             if (itemDto.getAvailable() != null) {
-                item1.setAvailable(itemDto.getAvailable());
+                item.setAvailable(itemDto.getAvailable());
             }
-            if (itemDto.getName() != null) {
-                item1.setName(itemDto.getName());
+            if (itemDto.getName() != null && !(itemDto.getName().isBlank())) {
+                item.setName(itemDto.getName());
             }
-            if (itemDto.getDescription() != null) {
-                item1.setDescription(itemDto.getDescription());
+            if (itemDto.getDescription() != null && !(itemDto.getDescription().isBlank())) {
+                item.setDescription(itemDto.getDescription());
             }
             if (itemDto.getOwner() != null) {
-                item1.setOwner(itemDto.getOwner());
+                item.setOwner(itemDto.getOwner());
             }
             if (itemDto.getRequest() != null) {
-                item1.setRequest(itemDto.getRequest());
+                item.setRequest(itemDto.getRequest());
             }
-            itemRepository.update(item1);
-            return itemMapper.toItemDto(item1);
+            itemRepository.update(item);
+            return ItemMapper.toItemDto(item);
             } else {
                 throw  new WrongParameterException("Вещь не найдена");
            }
-    }
-
-    private void checkUser(Long userId) {
-        try {
-            userService.getById(userId);
-        } catch (RuntimeException e) {
-            throw new NotFoundException("Юзер с ID " + userId + " не найден");
-        }
     }
 
     @Override
@@ -96,4 +86,13 @@ public class ItemServiceImpl implements ItemService {
         }
         return items;
     }
+
+    private void checkUser(Long userId) {
+        try {
+            userService.getById(userId);
+        } catch (RuntimeException e) {
+            throw new NotFoundException("Юзер с ID " + userId + " не найден");
+        }
+    }
+
 }

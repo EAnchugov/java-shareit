@@ -25,11 +25,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User create(User user) {
-        User user1 = user;
         id++;
-        user1.setId(id);
-        userMap.put(id, user1);
-        return user1;
+        user.setId(id);
+        userMap.put(id, user);
+        return user;
     }
 
     @Override

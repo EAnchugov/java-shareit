@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.DuplicateEmailException;
-import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -11,6 +10,7 @@ import ru.practicum.shareit.user.userDTO.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,14 +32,15 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         userDuplicateEmailCheck(user);
-        userNameCheck(user);
         return UserMapper.toUserDTO(userRepository.create(user));
     }
 
     public UserDto update(UserDto userDto, Long id) {
         User user = UserMapper.toUser(userDto);
-        userDuplicateEmailCheck(user);
         User user1 = userRepository.getById(id);
+        if (!(Objects.equals(user.getEmail(), user1.getEmail()))) {
+            userDuplicateEmailCheck(user);
+        }
         if (user.getName() != null) {
             user1.setName(user.getName());
         }
@@ -59,12 +60,6 @@ public class UserServiceImpl implements UserService {
             if (u.getEmail().equals(user.getEmail())) {
             throw new DuplicateEmailException("Email Duplicate");
             }
-        }
-    }
-
-    private void userNameCheck(User user) {
-        if (user.getEmail() == null) {
-            throw new WrongParameterException("Name = null!");
         }
     }
 }

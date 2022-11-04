@@ -20,36 +20,35 @@ public class ItemServiceImpl implements ItemService {
     private final UserServiceImpl userService;
 
     @Override
-    public ItemDto createItem(ItemDto itemDto, Long userId) {
+    public ItemDto createItem(ItemDto dto, Long userId) {
         checkUser(userId);
-        itemDto.setOwner(userId);
-        return ItemMapper.toItemDto(itemRepository.create(ItemMapper.toItem(itemDto)));
+        dto.setOwner(userId);
+        return ItemMapper.toItemDto(itemRepository.create(ItemMapper.toItem(dto)));
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId) {
+    public ItemDto updateItem(ItemDto dto, Long userId, Long itemId) {
         checkUser(userId);
         Item item = itemRepository.getById(itemId);
         if (item != null) {
             if (!(item.getOwner().equals(userId))) {
                 throw new NotFoundException("Изменять может только владелец");
             }
-            if (itemDto.getAvailable() != null) {
-                item.setAvailable(itemDto.getAvailable());
+            if (dto.getAvailable() != null) {
+                item.setAvailable(dto.getAvailable());
             }
-            if (itemDto.getName() != null && !(itemDto.getName().isBlank())) {
-                item.setName(itemDto.getName());
+            if (dto.getName() != null && !(dto.getName().isBlank())) {
+                item.setName(dto.getName());
             }
-            if (itemDto.getDescription() != null && !(itemDto.getDescription().isBlank())) {
-                item.setDescription(itemDto.getDescription());
+            if (dto.getDescription() != null && !(dto.getDescription().isBlank())) {
+                item.setDescription(dto.getDescription());
             }
-            if (itemDto.getOwner() != null) {
-                item.setOwner(itemDto.getOwner());
+            if (dto.getOwner() != null) {
+                item.setOwner(dto.getOwner());
             }
-            if (itemDto.getRequest() != null) {
-                item.setRequest(itemDto.getRequest());
+            if (dto.getRequest() != null) {
+                item.setRequest(dto.getRequest());
             }
-            itemRepository.update(item);
             return ItemMapper.toItemDto(item);
             } else {
                 throw  new WrongParameterException("Вещь не найдена");

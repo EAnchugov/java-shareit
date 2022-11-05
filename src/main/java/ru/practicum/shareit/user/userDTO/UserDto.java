@@ -13,7 +13,7 @@ public class UserDto {
     private Long id;
     @NotBlank(groups = Create.class)
     private String name;
-    @NotNull
-    @Email
+    @Email(groups = {Update.class, Create.class})
+    @NotNull(groups = {Create.class})
     private String email;
 }

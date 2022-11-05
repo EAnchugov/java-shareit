@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         if (!(Objects.equals(user.getEmail(), user1.getEmail()))) {
             userDuplicateEmailCheck(user);
         }
-        if (user.getName() != null) {
+        if (user.getName() != null && !user.getName().isBlank()) {
             user1.setName(user.getName());
         }
         if (user.getEmail() != null) {

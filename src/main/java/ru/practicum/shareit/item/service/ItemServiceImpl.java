@@ -20,14 +20,14 @@ public class ItemServiceImpl implements ItemService {
     private final UserServiceImpl userService;
 
     @Override
-    public ItemDto createItem(ItemDto dto, Long userId) {
+    public ItemDto create(ItemDto dto, Long userId) {
         checkUser(userId);
         dto.setOwner(userId);
         return ItemMapper.toItemDto(itemRepository.create(ItemMapper.toItem(dto)));
     }
 
     @Override
-    public ItemDto updateItem(ItemDto dto, Long userId, Long itemId) {
+    public ItemDto update(ItemDto dto, Long userId, Long itemId) {
         checkUser(userId);
         Item item = itemRepository.getById(itemId);
         if (item != null) {
@@ -61,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItems(Long userId) {
+    public List<ItemDto> getAll(Long userId) {
             List<ItemDto> items = new ArrayList<>();
             for (Item item : itemRepository.getAll()) {
                 if (item.getOwner().equals(userId)) {
@@ -72,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(String request) {
+    public List<ItemDto> search(String request) {
         ArrayList<ItemDto> items = new ArrayList<>();
         if (!request.isBlank()) {
             for (Item item :itemRepository.getAll()) {
@@ -90,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
         try {
             userService.getById(userId);
         } catch (RuntimeException e) {
-            throw new NotFoundException("Юзер с ID " + userId + " не найден");
+            throw new NotFoundException("Юзер с ID " + userId + " не найден " + e.getLocalizedMessage());
         }
     }
 

@@ -12,20 +12,29 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    private void handle(final DuplicateEmailException e) {
+    private ErrorResponse handle(final DuplicateEmailException e) {
         log.error("Ошибка " + e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private void handle(final WrongParameterException e) {
+    private ErrorResponse handle(final WrongParameterException e) {
         log.error("Ошибка " + e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    private void handle(final NotFoundException e) {
+    private ErrorResponse handle(final NotFoundException e) {
         log.error("Ошибка " + e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
     }
 
     @ExceptionHandler

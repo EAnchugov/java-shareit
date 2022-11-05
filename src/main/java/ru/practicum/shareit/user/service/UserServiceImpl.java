@@ -2,10 +2,12 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.userDTO.Create;
 import ru.practicum.shareit.user.userDTO.UserDto;
 
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDTO(userRepository.create(user));
     }
 
+    @Validated(Create.class)
     public UserDto update(UserDto userDto, Long id) {
         User user = UserMapper.toUser(userDto);
         User user1 = userRepository.getById(id);

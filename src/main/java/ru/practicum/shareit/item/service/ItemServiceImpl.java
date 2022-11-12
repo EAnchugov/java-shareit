@@ -55,12 +55,13 @@ public class ItemServiceImpl implements ItemService {
             if (dto.getRequest() != null) {
                 item.setRequest(dto.getRequest());
             }
-            item.setId(itemId);
-            item.setOwner(userId);
-            return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
+
             } else {
                 throw  new WrongParameterException("Вещь не найдена");
            }
+        item.setId(itemId);
+        item.setOwner(userId);
+        return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
     }
 
     @Override

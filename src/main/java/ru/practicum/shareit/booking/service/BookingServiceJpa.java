@@ -9,27 +9,53 @@ import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ItemNotAvailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepositoryJPA;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
+import static ru.practicum.shareit.booking.Status.WAITING;
 import static ru.practicum.shareit.booking.model.BookingMapper.toBookingDto;
 
 @Service
 @RequiredArgsConstructor
 public class BookingServiceJpa implements BookingService {
     private final BookingRepository bookingRepository;
+    private final UserRepositoryJPA userRepositoryJPA;
     private final ItemServiceImpl itemServiceImpl;
     @Override
     @Transactional
     public BookingDto create(BookingDto bookingDto, Long userId) {
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(userId));
-        if (item.getAvailable().equals(false)){
+        User user = userRepositoryJPA.getReferenceById(userId);
+        Booking booking = BookingMapper.dtoToBooking(bookingDto);
+        Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId()));
+
+        if (!item.getAvailable()){
             throw new ItemNotAvailableException("Вещь недоступна");
         }
-        return toBookingDto(bookingRepository.save(BookingMapper.dtoToBooking(bookingDto)));
+        if (item.getOwner().equals(userId)){
+            throw new WrongParameterException("Нельзя бронировать у себя");
+        }
+        if (booking.getStart().isBefore(LocalDateTime.now())) {
+            throw new WrongParameterException("нельзя бронировать в прошлом");
+        }
+        if (booking.getEnd().isBefore(LocalDateTime.now())) {
+            throw new WrongParameterException("Нельзя сдавать в прошлом");
+        }
+        if (booking.getStart().isAfter(booking.getEnd())){
+            throw new WrongParameterException("Нельзя сдавать раньше чем получить");
+        }
+
+        booking.setBooker(user.getId());
+        booking.setItem(item.getId());
+        booking.setStatus(WAITING);
+        bookingRepository.save(booking);
+        return toBookingDto(booking);
     }
 
     @Override
@@ -40,7 +66,7 @@ public class BookingServiceJpa implements BookingService {
     @Override
     @Transactional
     public TreeSet<BookingDto> getAllByOwner(Long userId, String state) {
-        TreeSet<BookingDto> ownerBookings = new TreeSet<BookingDto>( Comparator.comparing(BookingDto ::getStart));
+        TreeSet<BookingDto> ownerBookings = new TreeSet<>( Comparator.comparing(BookingDto ::getStart));
         for (Booking booking: bookingRepository.findAll()) {
             if (itemServiceImpl.getByID(booking.getItem()).getOwner().equals(userId)){
                 ownerBookings.add(toBookingDto(booking));

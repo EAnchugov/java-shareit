@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
@@ -18,9 +19,8 @@ import javax.validation.constraints.NotNull;
 //@Data
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {

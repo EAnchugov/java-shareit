@@ -22,7 +22,6 @@ public class ItemMapper {
                 .available(itemDto.getAvailable())
                 .description(itemDto.getDescription())
                 .name(itemDto.getName())
-                .id(itemDto.getId())
                 .owner(itemDto.getOwner())
                 .request(itemDto.getRequest())
                 .build();

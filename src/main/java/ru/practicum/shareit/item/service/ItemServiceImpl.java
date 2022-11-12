@@ -8,6 +8,7 @@ import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.repository.ItemRepositoryJpa;
 import ru.practicum.shareit.user.service.UserService;
 

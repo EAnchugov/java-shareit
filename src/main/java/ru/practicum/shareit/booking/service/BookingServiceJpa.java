@@ -3,7 +3,9 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -13,8 +15,10 @@ import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepositoryJPA;
+import ru.practicum.shareit.user.service.UserServiceJPA;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -26,14 +30,16 @@ import static ru.practicum.shareit.booking.model.BookingMapper.toBookingDto;
 @RequiredArgsConstructor
 public class BookingServiceJpa implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserRepositoryJPA userRepositoryJPA;
+    private final UserServiceJPA userServiceJPA;;
     private final ItemServiceImpl itemServiceImpl;
     @Override
     @Transactional
-    public BookingDto create(BookingDto bookingDto, Long userId) {
-        User user = userRepositoryJPA.getReferenceById(userId);
+    public LongBookingDto create(BookingDto bookingDto, Long userId) {
+        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        user.setId(userId);
         Booking booking = BookingMapper.dtoToBooking(bookingDto);
         Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId()));
+        item.setId(bookingDto.getItemId());
 
         if (!item.getAvailable()){
             throw new ItemNotAvailableException("Вещь недоступна");
@@ -55,7 +61,23 @@ public class BookingServiceJpa implements BookingService {
         booking.setItem(item.getId());
         booking.setStatus(WAITING);
         bookingRepository.save(booking);
-        return toBookingDto(booking);
+ //       return toBookingDto(booking);
+//        private Long id;
+//        private LocalDateTime start;
+//        private LocalDateTime end;
+//        private Item itemId;
+//        private User booker;
+//        private Status status;
+
+
+        return LongBookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .item(item)
+                .booker(user)
+                .status(booking.getStatus())
+                .build();
     }
 
     @Override

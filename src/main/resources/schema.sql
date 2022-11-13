@@ -23,7 +23,8 @@ CREATE TABLE bookings(
                          end_time TIMESTAMP WITHOUT TIME ZONE,
                          item BIGINT references ITEMS(id),
                          booker BIGINT references USERS(id),
-                         status VARCHAR
+                         status VARCHAR,
+                        CONSTRAINT pk_booking PRIMARY KEY (id)
 );
 
 

@@ -42,8 +42,8 @@ public class BookingController {
         return bookingService.getAllByUser(userId, state);
     }
 
-    @GetMapping("/{bookingId}")
-    public BookingDto getById(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return bookingService.getById(bookingId, userId);
-    }
+//    @GetMapping("/{bookingId}")
+//    public BookingDto getById(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+//        return bookingService.getById(bookingId, userId);
+//    }
 }

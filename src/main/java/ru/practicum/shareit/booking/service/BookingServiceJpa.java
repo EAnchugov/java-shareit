@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -17,14 +16,12 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepositoryJPA;
 import ru.practicum.shareit.user.service.UserServiceJPA;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static ru.practicum.shareit.booking.Status.*;
-import static ru.practicum.shareit.booking.model.BookingMapper.toBookingDto;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +34,8 @@ public class BookingServiceJpa implements BookingService {
     public LongBookingDto create(BookingDto bookingDto, Long userId) {
         User user = UserMapper.toUser(userServiceJPA.getById(userId));
         user.setId(userId);
-        Booking booking = BookingMapper.dtoToBooking(bookingDto);
+        Booking booking = BookingMapper.toBookingFromBookingDto(bookingDto);
         Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId()));
-        item.setId(bookingDto.getItemId());
 
         if (!item.getAvailable()){
             throw new ItemNotAvailableException("Вещь недоступна");
@@ -56,29 +52,23 @@ public class BookingServiceJpa implements BookingService {
         if (booking.getStart().isAfter(booking.getEnd())){
             throw new WrongParameterException("Нельзя сдавать раньше чем получить");
         }
-
-        booking.setBooker(user.getId());
-        booking.setItem(item.getId());
+        booking.setBooker(user);
+        booking.setItem(item);
         booking.setStatus(WAITING);
-        bookingRepository.save(booking);
-//        return LongBookingDto.builder()
-//                .id(booking.getId())
-//                .start(booking.getStart())
-//                .end(booking.getEnd())
-//                .item(item)
-//                .booker(user)
-//                .status(booking.getStatus())
-//                .build();
-        return longBookingDtoCreator(booking,userId);
+        return BookingMapper.toLongBookingDto(bookingRepository.save(booking));
     }
 
     @Override
+    public TreeSet<BookingDto> getAllByOwner(Long userId, String state) {
+        return null;
+    }
+
+    @Override
+    @Transactional
     public LongBookingDto approve(Long bookingId, Long userId, Boolean approved) {
-        Booking booking = getBooking(bookingId);
-        User user = UserMapper.toUser(userServiceJPA.getById(userId));
-        user.setId(userId);
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem()));
-        item.setId(booking.getItem());
+        Booking booking = getBookingById(bookingId);
+        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem().getId()));
+//        item.setId(booking.getItem());
 
         if (!userId.equals(item.getOwner())) {
             throw new NotFoundException("Невозможно подтвердить бронирование - " +
@@ -89,53 +79,44 @@ public class BookingServiceJpa implements BookingService {
                     "бронирование уже подтверждено или отклонено");
         }
 
-        if (approved == true){
+        if (approved.equals(true)){
             booking.setStatus(APPROVED);
         }else {
             booking.setStatus(REJECTED);
         }
         bookingRepository.save(booking);
-        return longBookingDtoCreator(booking,userId);
-
-//        return LongBookingDto.builder()
-//                .id(booking.getId())
-//                .start(booking.getStart())
-//                .end(booking.getEnd())
-//                .item(item)
-//                .booker(user)
-//                .status(booking.getStatus())
-//                .build();
+        return BookingMapper.toLongBookingDto(bookingRepository.save(booking));
     }
 
-    @Override
-    @Transactional
-    public TreeSet<BookingDto> getAllByOwner(Long userId, String state) {
-        TreeSet<BookingDto> ownerBookings = new TreeSet<>( Comparator.comparing(BookingDto ::getStart));
-        for (Booking booking: bookingRepository.findAll()) {
-            if (itemServiceImpl.getByID(booking.getItem()).getOwner().equals(userId)){
-                ownerBookings.add(toBookingDto(booking));
-            }
-        }
-        return ownerBookings;
-    }
+//    @Override
+//    @Transactional
+//    public TreeSet<BookingDto> getAllByOwner(Long userId, String state) {
+//        TreeSet<BookingDto> ownerBookings = new TreeSet<>( Comparator.comparing(BookingDto ::getStart));
+//        for (Booking booking: bookingRepository.findAll()) {
+//            if (itemServiceImpl.getByID(booking.getItem()).getOwner().equals(userId)){
+//                ownerBookings.add(BookingMapper.toBookingDtoFromBooking(booking));
+//            }
+//        }
+//        return ownerBookings;
+//    }
 
     @Override
     public List<BookingDto> getAllByUser(Long userId, String state) {
         List<BookingDto> userBooking = new ArrayList<>();
         for (Booking booking : bookingRepository.findAll()) {
             if (booking.getBooker().equals(userId)){
-                userBooking.add(toBookingDto(booking));
+                userBooking.add(BookingMapper.toBookingDtoFromBooking(booking));
             }
         }
         return userBooking;
     }
 
     @Override
-    public BookingDto getById(Long bookingId, Long userId) {
+    public BookingDto getBookingDtoById(Long bookingId, Long userId) {
         return null;
     }
 
-    private Booking getBooking(Long id){
+    private Booking getBookingById(Long id){
         Booking booking;
         Optional<Booking> optionalBooking = bookingRepository.findById(id);
         if(optionalBooking.isPresent()){
@@ -146,19 +127,19 @@ public class BookingServiceJpa implements BookingService {
         }
         return booking;
     }
-    private LongBookingDto longBookingDtoCreator(Booking booking, Long userId){
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem()));
-        item.setId(booking.getItem());
-        User user = UserMapper.toUser(userServiceJPA.getById(userId));
-        user.setId(userId);
-        return LongBookingDto.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .item(item)
-                .booker(user)
-                .status(booking.getStatus())
-                .build();
-
-    }
+//    private LongBookingDto longBookingDtoCreator(Booking booking, Long userId){
+//        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem()));
+//        item.setId(booking.getItem());
+//        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+//        user.setId(userId);
+//        LongBookingDto back = LongBookingDto.builder()
+//                .id(booking.getId())
+//                .start(booking.getStart())
+//                .end(booking.getEnd())
+//                .item(item)
+//                .booker(user)
+//                .status(booking.getStatus())
+//                .build();
+//        return back;
+//    }
 }

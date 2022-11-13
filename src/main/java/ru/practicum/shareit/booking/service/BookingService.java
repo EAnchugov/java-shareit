@@ -9,7 +9,7 @@ import java.util.TreeSet;
 public interface BookingService {
     LongBookingDto create(BookingDto bookingDto, Long userId);
 
-    BookingDto approve(Long bookingId, Long userId, Boolean approved);
+    LongBookingDto approve(Long bookingId, Long userId, Boolean approved);
 
     TreeSet<BookingDto> getAllByOwner(Long userId, String state);
 

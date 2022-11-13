@@ -23,14 +23,14 @@ import ru.practicum.shareit.user.service.UserServiceJPA;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static ru.practicum.shareit.booking.Status.WAITING;
+import static ru.practicum.shareit.booking.Status.*;
 import static ru.practicum.shareit.booking.model.BookingMapper.toBookingDto;
 
 @Service
 @RequiredArgsConstructor
 public class BookingServiceJpa implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserServiceJPA userServiceJPA;;
+    private final UserServiceJPA userServiceJPA;
     private final ItemServiceImpl itemServiceImpl;
     @Override
     @Transactional
@@ -61,28 +61,50 @@ public class BookingServiceJpa implements BookingService {
         booking.setItem(item.getId());
         booking.setStatus(WAITING);
         bookingRepository.save(booking);
- //       return toBookingDto(booking);
-//        private Long id;
-//        private LocalDateTime start;
-//        private LocalDateTime end;
-//        private Item itemId;
-//        private User booker;
-//        private Status status;
-
-
-        return LongBookingDto.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .item(item)
-                .booker(user)
-                .status(booking.getStatus())
-                .build();
+//        return LongBookingDto.builder()
+//                .id(booking.getId())
+//                .start(booking.getStart())
+//                .end(booking.getEnd())
+//                .item(item)
+//                .booker(user)
+//                .status(booking.getStatus())
+//                .build();
+        return longBookingDtoCreator(booking,userId);
     }
 
     @Override
-    public BookingDto approve(Long bookingId, Long userId, Boolean approved) {
-        return BookingMapper.toBookingDto(getBooking(bookingId));
+    public LongBookingDto approve(Long bookingId, Long userId, Boolean approved) {
+        Booking booking = getBooking(bookingId);
+        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        user.setId(userId);
+        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem()));
+        item.setId(booking.getItem());
+
+        if (!userId.equals(item.getOwner())) {
+            throw new NotFoundException("Невозможно подтвердить бронирование - " +
+                    "не найдено бронирование с id " + bookingId + " у пользователя с id" + userId);
+        }
+        if (!booking.getStatus().equals(WAITING)) {
+            throw new ItemNotAvailableException("Невозможно подтвердить бронирование - " +
+                    "бронирование уже подтверждено или отклонено");
+        }
+
+        if (approved == true){
+            booking.setStatus(APPROVED);
+        }else {
+            booking.setStatus(REJECTED);
+        }
+        bookingRepository.save(booking);
+        return longBookingDtoCreator(booking,userId);
+
+//        return LongBookingDto.builder()
+//                .id(booking.getId())
+//                .start(booking.getStart())
+//                .end(booking.getEnd())
+//                .item(item)
+//                .booker(user)
+//                .status(booking.getStatus())
+//                .build();
     }
 
     @Override
@@ -123,5 +145,20 @@ public class BookingServiceJpa implements BookingService {
             throw new NotFoundException("Нет вещи с id =" + id);
         }
         return booking;
+    }
+    private LongBookingDto longBookingDtoCreator(Booking booking, Long userId){
+        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem()));
+        item.setId(booking.getItem());
+        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        user.setId(userId);
+        return LongBookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .item(item)
+                .booker(user)
+                .status(booking.getStatus())
+                .build();
+
     }
 }

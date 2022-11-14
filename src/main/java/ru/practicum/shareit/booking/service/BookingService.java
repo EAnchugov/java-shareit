@@ -13,7 +13,7 @@ public interface BookingService {
 
     TreeSet<BookingDto> getAllByOwner(Long userId, String state);
 
-    List<BookingDto> getAllByUser(Long userId, String state);
+    List<LongBookingDto> getAllByUser(Long userId, String state);
 
-    BookingDto getBookingDtoById(Long bookingId, Long userId);
+    LongBookingDto getBookingDtoById(Long bookingId, Long userId);
 }

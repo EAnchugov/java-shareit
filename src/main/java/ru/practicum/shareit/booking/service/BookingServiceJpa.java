@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -18,6 +20,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserServiceJPA;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +33,7 @@ public class BookingServiceJpa implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserServiceJPA userServiceJPA;
     private final ItemServiceImpl itemServiceImpl;
+    private final EntityManager entityManager;
 
 
     @Override
@@ -44,7 +48,7 @@ public class BookingServiceJpa implements BookingService {
             throw new ItemNotAvailableException("Вещь недоступна");
         }
         if (item.getOwner().equals(userId)){
-            throw new WrongParameterException("Нельзя бронировать у себя");
+            throw new NotFoundException("Нельзя бронировать у себя");
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
             throw new WrongParameterException("нельзя бронировать в прошлом");
@@ -90,17 +94,32 @@ public class BookingServiceJpa implements BookingService {
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
         List<LongBookingDto> ownerBookingsDto = new ArrayList<>();
+        Session session = entityManager.unwrap(Session.class);
+        Query query;
         if (state.equals("ALL")){
-            ownerBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
+            query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
+                    " where i.owner = :userId order by b.start desc");
+            query.setParameter("userId", userId);
+            ownerBookings = query.list();
 
-        } else if (state.equals(null)) {
+        } else if (state.equals("FUTURE")) {
+            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
+                    "where i.owner = :userId AND b.end > :now order by b.start desc");
+            query.setParameter("userId", userId);
+            query.setParameter("now", LocalDateTime.now());
+            ownerBookings = query.list();
+        } else if (state.equals("PAST")) {
+            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
+                    "where i.owner = :userId AND b.end < :now order by b.start desc");
+            query.setParameter("userId", userId);
+            query.setParameter("now", LocalDateTime.now());
+            ownerBookings = query.list();
 
-        } else if (state.equals(null)) {
-
-        } else if (state.equals(null)) {
-
-        } else if (state.equals(null)) {
-
+        } else if (state.equals("CURRENT")) {
+            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
+                    "where i.owner = :userId AND (b.start < :now AND b.end > :now) order by b.start desc");
+            query.setParameter("userId", userId);
+            query.setParameter("now", LocalDateTime.now());
         }else {
             throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }

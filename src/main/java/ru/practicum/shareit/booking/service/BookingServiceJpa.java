@@ -86,14 +86,29 @@ public class BookingServiceJpa implements BookingService {
     @Override
     @Transactional
     public List<LongBookingDto> getByOwner(Long userId, String state) {
+        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        user.setId(userId);
+        List<Booking> ownerBookings = new ArrayList<>();
+        List<LongBookingDto> ownerBookingsDto = new ArrayList<>();
+        if (state.equals("ALL")){
+            ownerBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
 
-//        TreeSet<BookingDto> ownerBookings = new TreeSet<>( Comparator.comparing(BookingDto ::getStart));
-//        for (Booking booking: bookingRepository.findAll()) {
-//            if (itemServiceImpl.getByID(booking.getItem()).getOwner().equals(userId)){
-//                ownerBookings.add(BookingMapper.toBookingDtoFromBooking(booking));
-//            }
-//        }
-        return null;
+        } else if (state.equals(null)) {
+
+        } else if (state.equals(null)) {
+
+        } else if (state.equals(null)) {
+
+        } else if (state.equals(null)) {
+
+        }else {
+            throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
+        }
+
+        for (Booking b: ownerBookings) {
+            ownerBookingsDto.add(BookingMapper.toLongBookingDto(b));
+        }
+        return ownerBookingsDto;
     }
 
     @Override
@@ -103,10 +118,11 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userServiceJPA.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
+        List<LongBookingDto> userBookingsDto = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
         if (state.equals("ALL")){
-            userBookings.addAll(bookingRepository.findAllByBooker(user));
+            userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
         } else if (state.equals("CURRENT")){
             userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
                     LocalDateTime.now(), LocalDateTime.now()));
@@ -119,23 +135,21 @@ public class BookingServiceJpa implements BookingService {
         } else if (state.equals("REJECTED")){
             userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
         } else {
-            throw new WrongParameterException("Неверный state");
+            throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
-//        List<LongBookingDto> userBookingsDto = new ArrayList<>();
-//        for (Booking booking: userBookings) {
-//            userBookingsDto.add(BookingMapper.toLongBookingDto(booking));
-//        }
-//        System.out.println(userBookings);
-//        System.out.println(userBookingsDto);
-        return userBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
- //       return userBookingsDto;
+
+        for (Booking b: userBookings) {
+            userBookingsDto.add(BookingMapper.toLongBookingDto(b));
+        }
+        return userBookingsDto;
+
     }
 
     @Override
     public LongBookingDto getBookingDtoById(Long bookingId, Long userId) {
         Booking booking = getBookingById(bookingId);
         if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner())){
-            throw new WrongParameterException("Не автор бронирования или владелец вещи");
+            throw new NotFoundException("Не автор бронирования или владелец вещи");
         }
         return BookingMapper.toLongBookingDto(booking);
     }

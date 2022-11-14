@@ -27,13 +27,13 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public LongBookingDto update(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId,
                              @RequestParam Boolean approved){
-        return bookingService.approve(bookingId, userId,approved);
+        return bookingService.update(bookingId, userId,approved);
     }
 
     @GetMapping("/owner")
-    public TreeSet<BookingDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<LongBookingDto> getByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getAllByOwner(userId, state);
+        return bookingService.getByOwner(userId, state);
     }
 
     @GetMapping

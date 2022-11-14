@@ -9,9 +9,9 @@ import java.util.TreeSet;
 public interface BookingService {
     LongBookingDto create(BookingDto bookingDto, Long userId);
 
-    LongBookingDto approve(Long bookingId, Long userId, Boolean approved);
+    LongBookingDto update(Long bookingId, Long userId, Boolean approved);
 
-    TreeSet<BookingDto> getAllByOwner(Long userId, String state);
+    List<LongBookingDto> getByOwner(Long userId, String state);
 
     List<LongBookingDto> getAllByUser(Long userId, String state);
 

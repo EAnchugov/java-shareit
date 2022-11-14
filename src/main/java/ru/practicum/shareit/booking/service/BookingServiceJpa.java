@@ -20,6 +20,7 @@ import ru.practicum.shareit.user.service.UserServiceJPA;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.Status.*;
 
@@ -60,14 +61,10 @@ public class BookingServiceJpa implements BookingService {
         return BookingMapper.toLongBookingDto(bookingRepository.save(booking));
     }
 
-    @Override
-    public TreeSet<BookingDto> getAllByOwner(Long userId, String state) {
-        return null;
-    }
 
     @Override
     @Transactional
-    public LongBookingDto approve(Long bookingId, Long userId, Boolean approved) {
+    public LongBookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = getBookingById(bookingId);
         Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem().getId()));
         if (!userId.equals(item.getOwner())) {
@@ -86,56 +83,52 @@ public class BookingServiceJpa implements BookingService {
         return BookingMapper.toLongBookingDto(bookingRepository.save(booking));
     }
 
-//    @Override
-//    @Transactional
-//    public TreeSet<BookingDto> getAllByOwner(Long userId, String state) {
+    @Override
+    @Transactional
+    public List<LongBookingDto> getByOwner(Long userId, String state) {
+
 //        TreeSet<BookingDto> ownerBookings = new TreeSet<>( Comparator.comparing(BookingDto ::getStart));
 //        for (Booking booking: bookingRepository.findAll()) {
 //            if (itemServiceImpl.getByID(booking.getItem()).getOwner().equals(userId)){
 //                ownerBookings.add(BookingMapper.toBookingDtoFromBooking(booking));
 //            }
 //        }
-//        return ownerBookings;
-//    }
+        return null;
+    }
 
     @Override
     @Transactional
     public List<LongBookingDto> getAllByUser(Long userId, String state) {
-        Long userId1 = userId;
-        String state1 = state;
-
 
         User user = UserMapper.toUser(userServiceJPA.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
-
         LocalDateTime now = LocalDateTime.now();
+
         if (state.equals("ALL")){
             userBookings.addAll(bookingRepository.findAllByBooker(user));
-        }
-        if (state.equals("CURRENT")){
+        } else if (state.equals("CURRENT")){
             userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
                     LocalDateTime.now(), LocalDateTime.now()));
-        }
-        if (state == "PAST"){
+        } else if (state.equals("PAST")){
             userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now));
-        }
-        if (state == "FUTURE"){
+        } else if (state.equals("FUTURE")){
             userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now));
-        }
-        if (state == "WAITING"){
+        } else if (state.equals("WAITING")){
             userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING));
-        }
-        if (state == "REJECTED"){
+        } else if (state.equals("REJECTED")){
             userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
+        } else {
+            throw new WrongParameterException("Неверный state");
         }
-
-        List<LongBookingDto> userBookingsDto = new ArrayList<>();
-        for (Booking booking: userBookings) {
-            userBookingsDto.add(BookingMapper.toLongBookingDto(booking));
-        }
-
-        return userBookingsDto;
+//        List<LongBookingDto> userBookingsDto = new ArrayList<>();
+//        for (Booking booking: userBookings) {
+//            userBookingsDto.add(BookingMapper.toLongBookingDto(booking));
+//        }
+//        System.out.println(userBookings);
+//        System.out.println(userBookingsDto);
+        return userBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
+ //       return userBookingsDto;
     }
 
     @Override
@@ -144,7 +137,6 @@ public class BookingServiceJpa implements BookingService {
         if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner())){
             throw new WrongParameterException("Не автор бронирования или владелец вещи");
         }
-
         return BookingMapper.toLongBookingDto(booking);
     }
 

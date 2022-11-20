@@ -91,12 +91,22 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId){
+        try {
+            itemDto.setLastBooking(getLastBooking(id, userId));
+            itemDto.setNextBooking(getNextBooking(id, userId));
+        }finally {
+            return itemDto;
+        }
+    }
+
     @Override
     public List<ItemDto> getAll(Long userId) {
             List<ItemDto> items = new ArrayList<>();
             for (Item item : itemRepositoryJpa.findAll()) {
                 if (item.getOwner().equals(userId)) {
-                    items.add(ItemMapper.toItemDto(item));
+                    ItemDto itemDto = ItemMapper.toItemDto(item);
+                    items.add(itemDtoBuild(itemDto,item.getId(),userId));
                 }
             }
         return items;

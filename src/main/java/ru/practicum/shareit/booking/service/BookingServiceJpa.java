@@ -42,7 +42,7 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userServiceJPA.getById(userId));
         user.setId(userId);
         Booking booking = BookingMapper.toBookingFromBookingDto(bookingDto);
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId()));
+        Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId(), userId));
 
         if (!item.getAvailable()){
             throw new ItemNotAvailableException("Вещь недоступна");
@@ -70,7 +70,7 @@ public class BookingServiceJpa implements BookingService {
     @Transactional
     public LongBookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = getBookingById(bookingId);
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem().getId()));
+        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem().getId(), userId));
         if (!userId.equals(item.getOwner())) {
             throw new NotFoundException("User не владеет вещью");
         }

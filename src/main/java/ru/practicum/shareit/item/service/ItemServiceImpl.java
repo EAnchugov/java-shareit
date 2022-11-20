@@ -86,6 +86,7 @@ public class ItemServiceImpl implements ItemService {
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));
+            itemDto.setComments(new ArrayList<>());
         }finally {
             return itemDto;
         }

@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -77,7 +78,6 @@ public class BookingServiceJpa implements BookingService {
         if (!booking.getStatus().equals(WAITING)) {
             throw new ItemNotAvailableException("Статус != WAITING");
         }
-
         if (approved.equals(true)){
             booking.setStatus(APPROVED);
         }else {
@@ -89,7 +89,7 @@ public class BookingServiceJpa implements BookingService {
 
     @Override
     @Transactional
-    public List<LongBookingDto> getByOwner(Long userId, String state) {
+    public List<LongBookingDto> getAllByOwner(Long userId, String state) {
         User user = UserMapper.toUser(userServiceJPA.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
@@ -114,13 +114,25 @@ public class BookingServiceJpa implements BookingService {
             query.setParameter("userId", userId);
             query.setParameter("now", LocalDateTime.now());
             ownerBookings = query.list();
-
         } else if (state.equals("CURRENT")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
                     "where i.owner = :userId AND (b.start < :now AND b.end > :now) order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("now", LocalDateTime.now());
-        }else {
+        } else if (state.equals("WAITING")) {
+            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
+                    "where i.owner = :userId AND b.status = :status order by b.start desc");
+            query.setParameter("userId", userId);
+            query.setParameter("status", WAITING);
+            ownerBookings = query.list();
+
+        } else if (state.equals("REJECTED")) {
+            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
+                    "where i.owner = :userId AND b.status = :status order by b.start desc");
+            query.setParameter("userId", userId);
+            query.setParameter("status", REJECTED);
+            ownerBookings = query.list();
+        } else {
             throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
 
@@ -133,13 +145,11 @@ public class BookingServiceJpa implements BookingService {
     @Override
     @Transactional
     public List<LongBookingDto> getAllByUser(Long userId, String state) {
-
         User user = UserMapper.toUser(userServiceJPA.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
         List<LongBookingDto> userBookingsDto = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-
         if (state.equals("ALL")){
             userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
         } else if (state.equals("CURRENT")){
@@ -156,7 +166,6 @@ public class BookingServiceJpa implements BookingService {
         } else {
             throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
-
         for (Booking b: userBookings) {
             userBookingsDto.add(BookingMapper.toLongBookingDto(b));
         }

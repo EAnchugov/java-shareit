@@ -124,7 +124,13 @@ public class ItemServiceImpl implements ItemService {
                 " where i.id = :itemId order by b.id asc");
         query.setParameter("itemId", itemId);
         List<Booking> itemBookings = query.list();
-        Booking booking = itemBookings.get(0);
+        Booking booking = new Booking();
+        for (Booking b: itemBookings) {
+            if (b.getItem().getOwner() == userId){
+                booking = b;
+                break;
+            }
+        }
         LastBooking lastBooking = new LastBooking();
         lastBooking.setId(booking.getId());
         lastBooking.setBookerId(booking.getBooker().getId());
@@ -138,7 +144,13 @@ public class ItemServiceImpl implements ItemService {
         query.setParameter("itemId", itemId);
         query.setParameter("now", LocalDateTime.now());
         List<Booking> itemBookings = query.list();
-        Booking booking = itemBookings.get(0);
+        Booking booking = new Booking();
+        for (Booking b: itemBookings) {
+            if (b.getItem().getOwner() == userId){
+                booking = b;
+                break;
+            }
+        }
         NextBooking nextBooking = new NextBooking();
         nextBooking.setId(booking.getId());
         nextBooking.setBookerId(booking.getBooker().getId());

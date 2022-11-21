@@ -200,7 +200,7 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> itemBookings = query.list();
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
-            if (b.getItem().getOwner() == userId) {
+            if (b.getItem().getOwner().equals(userId)) {
                 booking = b;
                 break;
             }

@@ -35,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepositoryJpa itemRepositoryJpa;
     private final CommentRepositoryJpa commentRepository;
     private final EntityManager entityManager;
+
     @Override
     @Transactional
     public ItemDto create(ItemDto itemDto, Long userId) {
@@ -81,34 +82,27 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getByID(Long id, Long userId) {
         Item item;
         Optional<Item> optionalItem = itemRepositoryJpa.findById(id);
-        if(optionalItem.isPresent()){
+        if (optionalItem.isPresent()) {
             item = optionalItem.get();
-        }
-        else {
+        } else {
             throw new NotFoundException("Нет вещи с id =" + id);
         }
         ItemDto itemDto = ItemMapper.toItemDto(item);
-    //    List<Comment> comments = commentRepository.findAllByItemContaining(id);
-        List<CommentDto> commentDtoList = new ArrayList<>();
-        commentDtoList = getCommentsByItem(id);
-//        for (Comment c:comments) {
-//            commentDtoList.add(toCommentDto(c));
-//        }
-
+        List<CommentDto> commentDtoList = getCommentsByItem(id);
         itemDto.setComments(commentDtoList);
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));
-        }finally {
+        } finally {
             return itemDto;
         }
     }
 
-    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId){
+    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));
-        }finally {
+        } finally {
             return itemDto;
         }
     }
@@ -142,10 +136,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
-        if (!commentCheck(itemId,userId)){
-            throw new WrongParameterException("Вы не пользовались вещью");
+        if (!commentCheck(itemId,userId)) {
+            throw new WrongParameterException("Вы не пользовались вещью (наверно)");
         }
-        Item item = ItemMapper.toItem(getByID(itemId,userId));
         User author = UserMapper.toUser(userService.getById(userId));
         author.setId(userId);
         Comment comment = Comment.builder()
@@ -156,7 +149,8 @@ public class ItemServiceImpl implements ItemService {
                 .build();
         return toCommentDto(commentRepository.save(comment));
     }
-    private CommentDto toCommentDto(Comment comment){
+
+    private CommentDto toCommentDto(Comment comment) {
         User author = UserMapper.toUser(userService.getById(comment.getAuthor()));
 
         return CommentDto.builder()
@@ -166,7 +160,8 @@ public class ItemServiceImpl implements ItemService {
                 .text(comment.getText())
                 .build();
     }
-    private boolean commentCheck(Long itemId, Long authorId){
+
+    private boolean commentCheck(Long itemId, Long authorId) {
         Session session = entityManager.unwrap(Session.class);
         Query query;
         query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
@@ -176,27 +171,27 @@ public class ItemServiceImpl implements ItemService {
         query.setParameter("now", LocalDateTime.now());
         query.setParameter("status", Status.APPROVED);
         List<Booking> commentBookings = query.list();
-        if (commentBookings.size() == 0){
+        if (commentBookings.size() == 0) {
             return false;
         } else {
             return true;
         }
     }
 
-    private List<CommentDto> getCommentsByItem(Long id){
+    private List<CommentDto> getCommentsByItem(Long id) {
         Session session = entityManager.unwrap(Session.class);
         Query query;
         query = session.createQuery("select c from Comment c where item = :id");
         query.setParameter("id", id);
         List<Comment> comments = query.list();
-        System.out.println(comments);
         List<CommentDto> commentDtoList = new ArrayList<>();
-        for(Comment c: comments){
+        for (Comment c: comments) {
             commentDtoList.add(toCommentDto(c));
         }
         return commentDtoList;
     }
-    private LastBooking getLastBooking(Long itemId, Long userId){
+
+    private LastBooking getLastBooking(Long itemId, Long userId) {
         Session session = entityManager.unwrap(Session.class);
         Query query;
         query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
@@ -205,7 +200,7 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> itemBookings = query.list();
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
-            if (b.getItem().getOwner() == userId){
+            if (b.getItem().getOwner() == userId) {
                 booking = b;
                 break;
             }
@@ -215,7 +210,8 @@ public class ItemServiceImpl implements ItemService {
         lastBooking.setBookerId(booking.getBooker().getId());
         return lastBooking;
     }
-    private NextBooking getNextBooking(Long itemId, Long userId){
+
+    private NextBooking getNextBooking(Long itemId, Long userId) {
         Session session = entityManager.unwrap(Session.class);
         Query query;
         query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
@@ -225,7 +221,7 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> itemBookings = query.list();
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
-            if (b.getItem().getOwner() == userId){
+            if (b.getItem().getOwner() == userId) {
                 booking = b;
                 break;
             }
@@ -235,7 +231,6 @@ public class ItemServiceImpl implements ItemService {
         nextBooking.setBookerId(booking.getBooker().getId());
         return nextBooking;
     }
-
 
     private void checkUser(Long userId) {
         try {

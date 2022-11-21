@@ -45,10 +45,10 @@ public class BookingServiceJpa implements BookingService {
         Booking booking = BookingMapper.toBookingFromBookingDto(bookingDto);
         Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId(), userId));
 
-        if (!item.getAvailable()){
+        if (!item.getAvailable()) {
             throw new ItemNotAvailableException("Вещь недоступна");
         }
-        if (item.getOwner().equals(userId)){
+        if (item.getOwner().equals(userId)) {
             throw new NotFoundException("Нельзя бронировать у себя");
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
@@ -57,7 +57,7 @@ public class BookingServiceJpa implements BookingService {
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new WrongParameterException("Нельзя сдавать в прошлом");
         }
-        if (booking.getStart().isAfter(booking.getEnd())){
+        if (booking.getStart().isAfter(booking.getEnd())) {
             throw new WrongParameterException("Нельзя сдавать раньше чем получить");
         }
         booking.setBooker(user);
@@ -65,7 +65,6 @@ public class BookingServiceJpa implements BookingService {
         booking.setStatus(WAITING);
         return BookingMapper.toLongBookingDto(bookingRepository.save(booking));
     }
-
 
     @Override
     @Transactional
@@ -78,9 +77,9 @@ public class BookingServiceJpa implements BookingService {
         if (!booking.getStatus().equals(WAITING)) {
             throw new ItemNotAvailableException("Статус != WAITING");
         }
-        if (approved.equals(true)){
+        if (approved.equals(true)) {
             booking.setStatus(APPROVED);
-        }else {
+        } else {
             booking.setStatus(REJECTED);
         }
         bookingRepository.save(booking);
@@ -96,7 +95,7 @@ public class BookingServiceJpa implements BookingService {
         List<LongBookingDto> ownerBookingsDto = new ArrayList<>();
         Session session = entityManager.unwrap(Session.class);
         Query query;
-        if (state.equals("ALL")){
+        if (state.equals("ALL")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
                     " where i.owner = :userId order by b.start desc");
             query.setParameter("userId", userId);
@@ -151,18 +150,18 @@ public class BookingServiceJpa implements BookingService {
         List<Booking> userBookings = new ArrayList<>();
         List<LongBookingDto> userBookingsDto = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        if (state.equals("ALL")){
+        if (state.equals("ALL")) {
             userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
-        } else if (state.equals("CURRENT")){
+        } else if (state.equals("CURRENT")) {
             userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
                     LocalDateTime.now(), LocalDateTime.now()));
-        } else if (state.equals("PAST")){
+        } else if (state.equals("PAST")) {
             userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now));
-        } else if (state.equals("FUTURE")){
+        } else if (state.equals("FUTURE")) {
             userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now));
-        } else if (state.equals("WAITING")){
+        } else if (state.equals("WAITING")) {
             userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING));
-        } else if (state.equals("REJECTED")){
+        } else if (state.equals("REJECTED")) {
             userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
         } else {
             throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
@@ -171,25 +170,23 @@ public class BookingServiceJpa implements BookingService {
             userBookingsDto.add(BookingMapper.toLongBookingDto(b));
         }
         return userBookingsDto;
-
     }
 
     @Override
     public LongBookingDto getBookingDtoById(Long bookingId, Long userId) {
         Booking booking = getBookingById(bookingId);
-        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner())){
+        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner())) {
             throw new NotFoundException("Не автор бронирования или владелец вещи");
         }
         return BookingMapper.toLongBookingDto(booking);
     }
 
-    private Booking getBookingById(Long id){
+    private Booking getBookingById(Long id) {
         Booking booking;
         Optional<Booking> optionalBooking = bookingRepository.findById(id);
-        if(optionalBooking.isPresent()){
+        if (optionalBooking.isPresent()) {
             booking = optionalBooking.get();
-        }
-        else {
+        } else {
             throw new NotFoundException("Нет вещи с id =" + id);
         }
         return booking;

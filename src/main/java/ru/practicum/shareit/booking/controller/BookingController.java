@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.TreeSet;
 
 /**
  * TODO Sprint add-bookings.
@@ -21,12 +20,13 @@ public class BookingController {
 
     @PostMapping
     public LongBookingDto create(@Valid @RequestBody BookingDto bookingDto,
-                                 @RequestHeader("X-Sharer-User-Id") Long userId){
+                                 @RequestHeader("X-Sharer-User-Id") Long userId) {
         return bookingService.create(bookingDto, userId);
     }
+
     @PatchMapping("/{bookingId}")
     public LongBookingDto update(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId,
-                             @RequestParam Boolean approved){
+                             @RequestParam Boolean approved) {
         return bookingService.update(bookingId, userId,approved);
     }
 

@@ -45,6 +45,7 @@ public class ItemController {
     private  List<ItemDto> search(@RequestParam String text) {
         return itemService.search(text);
     }
+
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId,
                                     @Valid @RequestBody CommentDto commentDto) {

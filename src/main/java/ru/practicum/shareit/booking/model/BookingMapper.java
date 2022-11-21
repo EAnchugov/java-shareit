@@ -7,9 +7,9 @@ import ru.practicum.shareit.booking.dto.LongBookingDto;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
-    public static BookingDto toBookingDtoFromBooking(Booking booking){
-        return BookingDto.builder().
-                id(booking.getId())
+    public static BookingDto toBookingDtoFromBooking(Booking booking) {
+        return BookingDto.builder()
+                .id(booking.getId())
                 .end(booking.getEnd())
                 .start(booking.getStart())
                 .status(booking.getStatus())
@@ -17,7 +17,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static Booking toBookingFromBookingDto (BookingDto dto){
+    public static Booking toBookingFromBookingDto(BookingDto dto) {
         return Booking.builder()
                 .id(dto.getId())
                 .start(dto.getStart())
@@ -25,7 +25,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static LongBookingDto toLongBookingDto(Booking booking){
+    public static LongBookingDto toLongBookingDto(Booking booking) {
         return LongBookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
@@ -36,7 +36,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static LongBookingDto toLongBookingDtoFromBookingDto(BookingDto bookingDto){
+    public static LongBookingDto toLongBookingDtoFromBookingDto(BookingDto bookingDto) {
         return LongBookingDto.builder()
                 .id(bookingDto.getId())
                 .start(bookingDto.getStart())

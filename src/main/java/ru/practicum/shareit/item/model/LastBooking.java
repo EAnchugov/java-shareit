@@ -1,9 +1,7 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 
 @Data

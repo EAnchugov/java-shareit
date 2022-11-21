@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceJPA;
 import ru.practicum.shareit.user.userDTO.Create;
 import ru.practicum.shareit.user.userDTO.Update;
@@ -15,7 +14,6 @@ import java.util.List;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class UserController {
-  //  private final UserService userService;
     private final UserServiceJPA userServiceJPA;
 
     @GetMapping

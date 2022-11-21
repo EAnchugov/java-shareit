@@ -22,8 +22,9 @@ import java.util.Optional;
 @Primary
 @Validated
 @Transactional(readOnly = true)
-public class UserServiceJPA implements UserService{
+public class UserServiceJPA implements UserService {
     private final UserRepositoryJPA userRepositoryJPA;
+
     @Transactional
     @Override
     public List<UserDto> getAll() {
@@ -33,19 +34,20 @@ public class UserServiceJPA implements UserService{
         }
         return users;
     }
+
     @Transactional
     @Override
     public UserDto getById(Long id) {
         User user;
         Optional<User> opUser = userRepositoryJPA.findById(id);
-        if(opUser.isPresent()){
+        if (opUser.isPresent()) {
             user = opUser.get();
-        }
-        else {
+        } else {
             throw new NotFoundException("Нет пользователя с id =" + id);
         }
         return UserMapper.toUserDTO(user);
     }
+
     @Transactional
     @Override
     public UserDto create(UserDto userdto) {
@@ -76,6 +78,7 @@ public class UserServiceJPA implements UserService{
     public void delete(Long id) {
         userRepositoryJPA.deleteById(id);
     }
+
     private void userDuplicateEmailCheck(User user) {
         List<User> users = userRepositoryJPA.findAll();
         for (User u : users) {

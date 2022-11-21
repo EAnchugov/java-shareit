@@ -119,6 +119,7 @@ public class BookingServiceJpa implements BookingService {
                     "where i.owner = :userId AND (b.start < :now AND b.end > :now) order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("now", LocalDateTime.now());
+            ownerBookings = query.list();
         } else if (state.equals("WAITING")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
                     "where i.owner = :userId AND b.status = :status order by b.start desc");

@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@Entity()
+@Table(name = "comments")
+
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,20 +23,11 @@ public class Comment {
     @Column(name = "comment_text",length = 1000, nullable = false)
     private String text;
 
-    @ManyToOne
     @Column(nullable = false)
-    private Item item;
+    private Long item;
 
-    @ManyToOne
     @Column(nullable = false)
-    private User author;
+    private Long author;
 
     private LocalDateTime created;
-
-    public Comment(String text, Item item, User author, LocalDateTime created) {
-        this.text = text;
-        this.item = item;
-        this.author = author;
-        this.created = created;
-    }
 }

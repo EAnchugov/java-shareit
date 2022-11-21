@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.comment.repository.CommentRepositoryJpa;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
@@ -21,8 +22,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +33,7 @@ import java.util.Optional;
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepositoryJpa itemRepositoryJpa;
+    private final CommentRepositoryJpa commentRepository;
     private final EntityManager entityManager;
     @Override
     @Transactional
@@ -140,10 +141,23 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(getByID(itemId,userId));
         User author = UserMapper.toUser(userService.getById(userId));
         author.setId(userId);
-        Comment comment = new Comment(commentDto.getText(), item,author,commentDto.getCreated());
+        Comment comment = Comment.builder()
+                .text(commentDto.getText())
+                .item(itemId)
+                .author(userId)
+                .created(LocalDateTime.now())
+                .build();
+        return toCommentDto(commentRepository.save(comment));
+    }
+    private CommentDto toCommentDto(Comment comment){
+        User author = UserMapper.toUser(userService.getById(comment.getAuthor()));
 
-
-        return null;
+        return CommentDto.builder()
+                .id(comment.getId())
+                .created(comment.getCreated())
+                .authorName(author.getName())
+                .text(comment.getText())
+                .build();
     }
     private boolean commentCheck(Long itemId, Long authorId){
         Session session = entityManager.unwrap(Session.class);
@@ -155,13 +169,11 @@ public class ItemServiceImpl implements ItemService {
         query.setParameter("now", LocalDateTime.now());
         query.setParameter("status", Status.APPROVED);
         List<Booking> commentBookings = query.list();
-        System.out.println(commentBookings);
         if (commentBookings.size() == 0){
             return false;
         } else {
             return true;
         }
-
     }
 
     private LastBooking getLastBooking(Long itemId, Long userId){

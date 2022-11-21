@@ -1,7 +1,6 @@
 package ru.practicum.shareit.comment.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -9,11 +8,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
+@Entity
 @Data
-@Builder
-@Entity()
 @Table(name = "comments")
-
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +28,6 @@ public class Comment {
 
     @Column(nullable = false)
     private Long author;
-
+    @Column
     private LocalDateTime created;
 }

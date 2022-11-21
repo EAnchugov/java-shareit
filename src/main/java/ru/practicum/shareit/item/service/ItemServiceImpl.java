@@ -88,7 +88,14 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Нет вещи с id =" + id);
         }
         ItemDto itemDto = ItemMapper.toItemDto(item);
-        itemDto.setComments(new ArrayList<>());
+    //    List<Comment> comments = commentRepository.findAllByItemContaining(id);
+        List<CommentDto> commentDtoList = new ArrayList<>();
+        commentDtoList = getCommentsByItem(id);
+//        for (Comment c:comments) {
+//            commentDtoList.add(toCommentDto(c));
+//        }
+
+        itemDto.setComments(commentDtoList);
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));
@@ -176,6 +183,19 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    private List<CommentDto> getCommentsByItem(Long id){
+        Session session = entityManager.unwrap(Session.class);
+        Query query;
+        query = session.createQuery("select c from Comment c where item = :id");
+        query.setParameter("id", id);
+        List<Comment> comments = query.list();
+        System.out.println(comments);
+        List<CommentDto> commentDtoList = new ArrayList<>();
+        for(Comment c: comments){
+            commentDtoList.add(toCommentDto(c));
+        }
+        return commentDtoList;
+    }
     private LastBooking getLastBooking(Long itemId, Long userId){
         Session session = entityManager.unwrap(Session.class);
         Query query;

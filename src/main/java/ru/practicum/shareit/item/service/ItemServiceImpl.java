@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
@@ -15,12 +16,13 @@ import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.LastBooking;
 import ru.practicum.shareit.item.model.NextBooking;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.repository.ItemRepositoryJpa;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.persistence.EntityManager;
-import javax.swing.text.html.parser.Entity;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,9 +134,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
-        if (commentCheck(itemId,userId)){
+        if (!commentCheck(itemId,userId)){
             throw new WrongParameterException("Вы не пользовались вещью");
         }
+        Item item = ItemMapper.toItem(getByID(itemId,userId));
+        User author = UserMapper.toUser(userService.getById(userId));
+        author.setId(userId);
+        Comment comment = new Comment(commentDto.getText(), item,author,commentDto.getCreated());
+
 
         return null;
     }
@@ -142,12 +149,14 @@ public class ItemServiceImpl implements ItemService {
         Session session = entityManager.unwrap(Session.class);
         Query query;
         query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
-                " where i.id = :itemId and b.booker.id = :authorId and b.end > :now");
+                " where i.id = :itemId and b.booker.id = :authorId and b.end < :now and b.status = :status");
         query.setParameter("itemId", itemId);
         query.setParameter("authorId", authorId);
         query.setParameter("now", LocalDateTime.now());
+        query.setParameter("status", Status.APPROVED);
         List<Booking> commentBookings = query.list();
-        if (commentBookings.isEmpty()){
+        System.out.println(commentBookings);
+        if (commentBookings.size() == 0){
             return false;
         } else {
             return true;

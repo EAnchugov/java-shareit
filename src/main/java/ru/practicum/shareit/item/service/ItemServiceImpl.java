@@ -6,6 +6,8 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.comment.Dto.CommentDto;
+import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
@@ -83,10 +85,10 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Нет вещи с id =" + id);
         }
         ItemDto itemDto = ItemMapper.toItemDto(item);
+        itemDto.setComments(new ArrayList<>());
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));
-            itemDto.setComments(new ArrayList<>());
         }finally {
             return itemDto;
         }
@@ -126,6 +128,31 @@ public class ItemServiceImpl implements ItemService {
             }
         }
         return items;
+    }
+
+    @Override
+    public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
+        if (commentCheck(itemId,userId)){
+            throw new WrongParameterException("Вы не пользовались вещью");
+        }
+
+        return null;
+    }
+    private boolean commentCheck(Long itemId, Long authorId){
+        Session session = entityManager.unwrap(Session.class);
+        Query query;
+        query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
+                " where i.id = :itemId and b.booker.id = :authorId and b.end > :now");
+        query.setParameter("itemId", itemId);
+        query.setParameter("authorId", authorId);
+        query.setParameter("now", LocalDateTime.now());
+        List<Booking> commentBookings = query.list();
+        if (commentBookings.isEmpty()){
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
     private LastBooking getLastBooking(Long itemId, Long userId){

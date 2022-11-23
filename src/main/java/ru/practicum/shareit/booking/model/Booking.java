@@ -12,9 +12,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Future;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Data
 @Builder
 @Entity

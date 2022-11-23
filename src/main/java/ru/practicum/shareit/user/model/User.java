@@ -8,10 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Entity
 @Table(name = "users")
 @Builder

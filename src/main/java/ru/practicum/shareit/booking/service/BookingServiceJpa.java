@@ -44,11 +44,12 @@ public class BookingServiceJpa implements BookingService {
         user.setId(userId);
         Booking booking = BookingMapper.toBookingFromBookingDto(bookingDto);
         Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId(), userId));
+        Long ownerId = item.getOwner().getId();
 
         if (!item.getAvailable()) {
             throw new ItemNotAvailableException("Вещь недоступна");
         }
-        if (item.getOwner().equals(userId)) {
+        if (ownerId.equals(userId)) {
             throw new NotFoundException("Нельзя бронировать у себя");
         }
         if (booking.getStart().isBefore(LocalDateTime.now())) {
@@ -71,7 +72,7 @@ public class BookingServiceJpa implements BookingService {
     public LongBookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = getBookingById(bookingId);
         Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem().getId(), userId));
-        if (!userId.equals(item.getOwner())) {
+        if (!userId.equals(item.getOwner().getId())) {
             throw new NotFoundException("User не владеет вещью");
         }
         if (!booking.getStatus().equals(WAITING)) {
@@ -97,38 +98,38 @@ public class BookingServiceJpa implements BookingService {
         Query query;
         if (state.equals("ALL")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
-                    " where i.owner = :userId order by b.start desc");
+                    " where i.owner.id = :userId order by b.start desc");
             query.setParameter("userId", userId);
             ownerBookings = query.list();
 
         } else if (state.equals("FUTURE")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner = :userId AND b.end > :now order by b.start desc");
+                    "where i.owner.id = :userId AND b.end > :now order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("now", LocalDateTime.now());
             ownerBookings = query.list();
         } else if (state.equals("PAST")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner = :userId AND b.end < :now order by b.start desc");
+                    "where i.owner.id = :userId AND b.end < :now order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("now", LocalDateTime.now());
             ownerBookings = query.list();
         } else if (state.equals("CURRENT")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner = :userId AND (b.start < :now AND b.end > :now) order by b.start desc");
+                    "where i.owner.id = :userId AND (b.start < :now AND b.end > :now) order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("now", LocalDateTime.now());
             ownerBookings = query.list();
         } else if (state.equals("WAITING")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner = :userId AND b.status = :status order by b.start desc");
+                    "where i.owner.id = :userId AND b.status = :status order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("status", WAITING);
             ownerBookings = query.list();
 
         } else if (state.equals("REJECTED")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner = :userId AND b.status = :status order by b.start desc");
+                    "where i.owner.id = :userId AND b.status = :status order by b.start desc");
             query.setParameter("userId", userId);
             query.setParameter("status", REJECTED);
             ownerBookings = query.list();
@@ -175,7 +176,7 @@ public class BookingServiceJpa implements BookingService {
     @Override
     public LongBookingDto getBookingDtoById(Long bookingId, Long userId) {
         Booking booking = getBookingById(bookingId);
-        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner())) {
+        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner().getId())) {
             throw new NotFoundException("Не автор бронирования или владелец вещи");
         }
         return BookingMapper.toLongBookingDto(booking);

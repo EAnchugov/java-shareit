@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.comment.Dto.CommentDto;
 import ru.practicum.shareit.item.model.LastBooking;
 import ru.practicum.shareit.item.model.NextBooking;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -27,7 +28,7 @@ public class ItemDto {
     private Boolean available;
     private LastBooking lastBooking;
     private NextBooking nextBooking;
-    private Long owner;
+    private User owner;
     private Long request;
     private List<CommentDto> comments;
 }

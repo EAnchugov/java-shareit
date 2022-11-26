@@ -38,20 +38,26 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto create(ItemDto itemDto, Long userId) {
-        checkUser(userId);
-        itemDto.setOwner(userId);
+    public ItemDto create(ItemDto itemDto, Long ownerId) {
+        checkUser(ownerId);
+        User owner = UserMapper.toUser(userService.getById(ownerId));
+        owner.setId(ownerId);
+        itemDto.setOwner(owner);
         Item item = ItemMapper.toItem(itemDto);
+        item.setOwner(owner);
         return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
     }
 
     @Override
     @Transactional
-    public ItemDto update(ItemDto dto, Long userId, Long itemId) {
-        checkUser(userId);
-        Item item = ItemMapper.toItem(getByID(itemId, userId));
+    public ItemDto update(ItemDto dto, Long ownerId, Long itemId) {
+        User owner = UserMapper.toUser(userService.getById(ownerId));
+        owner.setId(ownerId);
+        checkUser(ownerId);
+        Item item = itemRepositoryJpa.getById(itemId);
+
         if (item != null) {
-            if (!(item.getOwner().equals(userId))) {
+            if (!(item.getOwner().equals(owner))) {
                 throw new NotFoundException("Изменять может только владелец");
             }
             if (dto.getAvailable() != null) {
@@ -64,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
                 item.setDescription(dto.getDescription());
             }
             if (dto.getOwner() != null) {
-                item.setOwner(dto.getOwner());
+                item.setOwner(owner);
             }
             if (dto.getRequest() != null) {
                 item.setRequest(dto.getRequest());
@@ -74,7 +80,7 @@ public class ItemServiceImpl implements ItemService {
                 throw  new WrongParameterException("Вещь не найдена");
            }
         item.setId(itemId);
-        item.setOwner(userId);
+        item.setOwner(owner);
         return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
     }
 
@@ -111,9 +117,13 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAll(Long userId) {
             List<ItemDto> items = new ArrayList<>();
             for (Item item : itemRepositoryJpa.findAll()) {
-                if (item.getOwner().equals(userId)) {
-                    ItemDto itemDto = ItemMapper.toItemDto(item);
-                    items.add(itemDtoBuild(itemDto,item.getId(),userId));
+                Long ownerId = item.getOwner().getId();
+                if (ownerId.equals(userId)) {
+                    ItemDto itemDto1 = ItemMapper.toItemDto(item);
+                    itemDto1 = itemDtoBuild(itemDto1,item.getId(),userId);
+                    items.add(itemDto1);
+//                    ItemDto itemDto = ItemMapper.toItemDto(item);
+//                    items.add(itemDtoBuild(itemDto,item.getId(),userId));
                 }
             }
         return items;
@@ -200,7 +210,11 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> itemBookings = query.list();
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
-            if (b.getItem().getOwner().equals(userId)) {
+            Long ownerId = b.getItem().getOwner().getId();
+            if (
+                    //b.getItem().getOwner().equals(userId)
+                    ownerId.equals(userId)
+            ) {
                 booking = b;
                 break;
             }
@@ -221,7 +235,10 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> itemBookings = query.list();
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
-            if (b.getItem().getOwner().equals(userId)) {
+            Long ownerId = b.getItem().getOwner().getId();
+            if ( ownerId.equals(userId)
+            //        b.getItem().getOwner().equals(userId)
+            ) {
                 booking = b;
                 break;
             }

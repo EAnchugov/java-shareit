@@ -54,10 +54,13 @@ public class ItemServiceImpl implements ItemService {
         User owner = UserMapper.toUser(userService.getById(ownerId));
         owner.setId(ownerId);
         checkUser(ownerId);
-        Item item = itemRepositoryJpa.getById(itemId);
+        Item item = itemRepositoryJpa. findById(itemId).orElseThrow(() ->
+                new WrongParameterException("Вещь не найдена"));
 
-        if (item != null) {
-            if (!(item.getOwner().equals(owner))) {
+  //      if (item != null) {
+        Long itemOwnerId = item.getOwner().getId();
+
+            if (!(itemOwnerId.equals(owner.getId()))) {
                 throw new NotFoundException("Изменять может только владелец");
             }
             if (dto.getAvailable() != null) {
@@ -76,9 +79,9 @@ public class ItemServiceImpl implements ItemService {
                 item.setRequest(dto.getRequest());
             }
 
-            } else {
-                throw  new WrongParameterException("Вещь не найдена");
-           }
+//            } else {
+//                throw  new WrongParameterException("Вещь не найдена");
+//           }
         item.setId(itemId);
         item.setOwner(owner);
         return ItemMapper.toItemDto(itemRepositoryJpa.save(item));

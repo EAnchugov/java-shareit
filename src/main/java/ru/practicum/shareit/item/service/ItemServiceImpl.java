@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -111,9 +112,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAll(Long userId) {
+            User user = UserMapper.toUser(userService.getById(userId));
+            user.setId(userId);
             List<ItemDto> items = new ArrayList<>();
-            for (Item item : itemRepository.findAll()) {
-                Long ownerId = item.getOwner().getId();
+                for (Item item : itemRepository.findAllByOwner(user)) {
+                    Long ownerId = item.getOwner().getId();
                 if (ownerId.equals(userId)) {
                     ItemDto itemDto1 = ItemMapper.toItemDto(item);
                     itemDto1 = itemDtoBuild(itemDto1,item.getId(),userId);

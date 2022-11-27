@@ -17,7 +17,7 @@ import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.LastBooking;
 import ru.practicum.shareit.item.model.NextBooking;
-import ru.practicum.shareit.item.repository.ItemRepositoryJpa;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
-    private final ItemRepositoryJpa itemRepositoryJpa;
+    private final ItemRepository itemRepository;
     private final CommentRepositoryJpa commentRepository;
     private final EntityManager entityManager;
 
@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
         itemDto.setOwner(owner);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ItemServiceImpl implements ItemService {
         User owner = UserMapper.toUser(userService.getById(ownerId));
         owner.setId(ownerId);
         checkUser(ownerId);
-        Item item = itemRepositoryJpa. findById(itemId).orElseThrow(() ->
+        Item item = itemRepository. findById(itemId).orElseThrow(() ->
                 new WrongParameterException("Вещь не найдена"));
         Long itemOwnerId = item.getOwner().getId();
 
@@ -78,13 +78,13 @@ public class ItemServiceImpl implements ItemService {
             }
         item.setId(itemId);
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto getByID(Long id, Long userId) {
         Item item;
-        Optional<Item> optionalItem = itemRepositoryJpa.findById(id);
+        Optional<Item> optionalItem = itemRepository.findById(id);
         if (optionalItem.isPresent()) {
             item = optionalItem.get();
         } else {
@@ -112,7 +112,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAll(Long userId) {
             List<ItemDto> items = new ArrayList<>();
-            for (Item item : itemRepositoryJpa.findAll()) {
+            for (Item item : itemRepository.findAll()) {
                 Long ownerId = item.getOwner().getId();
                 if (ownerId.equals(userId)) {
                     ItemDto itemDto1 = ItemMapper.toItemDto(item);
@@ -127,7 +127,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> search(String request) {
         ArrayList<ItemDto> items = new ArrayList<>();
         if (!request.isBlank()) {
-            for (Item item :itemRepositoryJpa.findAll()) {
+            for (Item item : itemRepository.findAll()) {
                 if (item.getAvailable() &&
                         item.getDescription().toLowerCase().contains(request.toLowerCase()) ||
                         item.getName().toLowerCase().contains(request.toLowerCase())) {
@@ -147,7 +147,7 @@ public class ItemServiceImpl implements ItemService {
         author.setId(userId);
         Comment comment = Comment.builder()
                 .text(commentDto.getText())
-                .item(itemRepositoryJpa.getById(itemId))
+                .item(itemRepository.getById(itemId))
                 .author(author)
                 .created(LocalDateTime.now())
                 .build();
@@ -182,19 +182,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private List<CommentDto> getCommentsByItemId(Long id) {
-
-        Session session = entityManager.unwrap(Session.class);
-        Query query;
-        query = session.createQuery("select c from Comment c where item = :id");
-        query.setParameter("id", id);
-        List<Comment> comments = query.list();
-        List<CommentDto> commentDtoList = new ArrayList<>();
-        for (Comment c: comments) {
-            commentDtoList.add(toCommentDto(c));
-        }
-        return commentDtoList;
-    }
     private List<CommentDto> getCommentsByItem(Item item){
         List<Comment> comments = new ArrayList<>();
         comments.addAll(commentRepository.findAllByItem(item));
@@ -216,7 +203,6 @@ public class ItemServiceImpl implements ItemService {
         for (Booking b: itemBookings) {
             Long ownerId = b.getItem().getOwner().getId();
             if (
-                    //b.getItem().getOwner().equals(userId)
                     ownerId.equals(userId)
             ) {
                 booking = b;

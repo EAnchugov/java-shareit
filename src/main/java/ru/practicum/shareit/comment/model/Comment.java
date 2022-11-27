@@ -20,7 +20,6 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(name = "comment_text",length = 1000, nullable = false)
     private String text;
 

@@ -18,7 +18,6 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-@Primary
 @Transactional(readOnly = true)
 public class UserServiceJPA implements UserService {
     private final UserRepository userRepository;

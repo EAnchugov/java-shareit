@@ -76,10 +76,6 @@ public class ItemServiceImpl implements ItemService {
             if (dto.getRequest() != null) {
                 item.setRequest(dto.getRequest());
             }
-
-//            } else {
-//                throw  new WrongParameterException("Вещь не найдена");
-//           }
         item.setId(itemId);
         item.setOwner(owner);
         return ItemMapper.toItemDto(itemRepositoryJpa.save(item));
@@ -95,8 +91,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Нет вещи с id =" + id);
         }
         ItemDto itemDto = ItemMapper.toItemDto(item);
-        List<CommentDto> commentDtoList = getCommentsByItem(id);
-        itemDto.setComments(commentDtoList);
+        itemDto.setComments(getCommentsByItem(item));
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));
@@ -123,8 +118,6 @@ public class ItemServiceImpl implements ItemService {
                     ItemDto itemDto1 = ItemMapper.toItemDto(item);
                     itemDto1 = itemDtoBuild(itemDto1,item.getId(),userId);
                     items.add(itemDto1);
-//                    ItemDto itemDto = ItemMapper.toItemDto(item);
-//                    items.add(itemDtoBuild(itemDto,item.getId(),userId));
                 }
             }
         return items;
@@ -152,10 +145,9 @@ public class ItemServiceImpl implements ItemService {
         }
         User author = UserMapper.toUser(userService.getById(userId));
         author.setId(userId);
-        author.setId(userId);
         Comment comment = Comment.builder()
                 .text(commentDto.getText())
-                .item(itemId)
+                .item(itemRepositoryJpa.getById(itemId))
                 .author(author)
                 .created(LocalDateTime.now())
                 .build();
@@ -190,12 +182,22 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private List<CommentDto> getCommentsByItem(Long id) {
+    private List<CommentDto> getCommentsByItemId(Long id) {
+
         Session session = entityManager.unwrap(Session.class);
         Query query;
         query = session.createQuery("select c from Comment c where item = :id");
         query.setParameter("id", id);
         List<Comment> comments = query.list();
+        List<CommentDto> commentDtoList = new ArrayList<>();
+        for (Comment c: comments) {
+            commentDtoList.add(toCommentDto(c));
+        }
+        return commentDtoList;
+    }
+    private List<CommentDto> getCommentsByItem(Item item){
+        List<Comment> comments = new ArrayList<>();
+        comments.addAll(commentRepository.findAllByItem(item));
         List<CommentDto> commentDtoList = new ArrayList<>();
         for (Comment c: comments) {
             commentDtoList.add(toCommentDto(c));

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.comment.model;
 
 import lombok.*;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -23,8 +24,9 @@ public class Comment {
     @Column(name = "comment_text",length = 1000, nullable = false)
     private String text;
 
-    @Column(nullable = false)
-    private Long item;
+    @ManyToOne
+    @JoinColumn(name = "item",referencedColumnName = "id", nullable = false)
+    private Item item;
 
     @ManyToOne
     @JoinColumn(name = "author",referencedColumnName = "id", nullable = false)

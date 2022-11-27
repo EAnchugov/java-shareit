@@ -8,7 +8,7 @@ import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepositoryJPA;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.userDTO.UserDto;
 
 import java.util.ArrayList;
@@ -21,13 +21,13 @@ import java.util.Optional;
 @Primary
 @Transactional(readOnly = true)
 public class UserServiceJPA implements UserService {
-    private final UserRepositoryJPA userRepositoryJPA;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
     public List<UserDto> getAll() {
         List<UserDto> users = new ArrayList<>();
-        for (User user : userRepositoryJPA.findAll()) {
+        for (User user : userRepository.findAll()) {
             users.add(UserMapper.toUserDTO(user));
         }
         return users;
@@ -36,7 +36,7 @@ public class UserServiceJPA implements UserService {
     @Override
     public UserDto getById(Long id) {
         User user;
-        Optional<User> opUser = userRepositoryJPA.findById(id);
+        Optional<User> opUser = userRepository.findById(id);
         if (opUser.isPresent()) {
             user = opUser.get();
         } else {
@@ -49,7 +49,7 @@ public class UserServiceJPA implements UserService {
     @Override
     public UserDto create(UserDto userdto) {
         User user = UserMapper.toUser(userdto);
-        return UserMapper.toUserDTO(userRepositoryJPA.save(user));
+        return UserMapper.toUserDTO(userRepository.save(user));
     }
 
     @Transactional
@@ -67,17 +67,17 @@ public class UserServiceJPA implements UserService {
             user1.setEmail(user.getEmail());
         }
         user1.setId(id);
-        return UserMapper.toUserDTO(userRepositoryJPA.save(user1));
+        return UserMapper.toUserDTO(userRepository.save(user1));
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        userRepositoryJPA.deleteById(id);
+        userRepository.deleteById(id);
     }
 
     private void userDuplicateEmailCheck(User user) {
-        List<User> users = userRepositoryJPA.findAll();
+        List<User> users = userRepository.findAll();
         for (User u : users) {
             if (u.getEmail().equals(user.getEmail())) {
             throw new DuplicateEmailException("Email Duplicate");

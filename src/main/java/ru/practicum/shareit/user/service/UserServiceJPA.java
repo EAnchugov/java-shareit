@@ -13,7 +13,6 @@ import ru.practicum.shareit.user.userDTO.UserDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -68,8 +67,8 @@ public class UserServiceJPA implements UserService {
         userRepository.deleteById(id);
     }
 
-    private void userDuplicateEmailCheck(User user){
-        if (userRepository.findAllByEmail(user.getEmail()).isPresent()){
+    private void userDuplicateEmailCheck(User user) {
+        if (userRepository.findAllByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateEmailException("Email Duplicate");
         }
     }

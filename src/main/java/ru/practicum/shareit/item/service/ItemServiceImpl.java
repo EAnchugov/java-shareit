@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -185,7 +184,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private List<CommentDto> getCommentsByItem(Item item){
+    private List<CommentDto> getCommentsByItem(Item item) {
         List<Comment> comments = new ArrayList<>();
         comments.addAll(commentRepository.findAllByItem(item));
         List<CommentDto> commentDtoList = new ArrayList<>();

@@ -152,17 +152,18 @@ public class ItemServiceImpl implements ItemService {
         }
         User author = UserMapper.toUser(userService.getById(userId));
         author.setId(userId);
+        author.setId(userId);
         Comment comment = Comment.builder()
                 .text(commentDto.getText())
                 .item(itemId)
-                .author(userId)
+                .author(author)
                 .created(LocalDateTime.now())
                 .build();
         return toCommentDto(commentRepository.save(comment));
     }
 
     private CommentDto toCommentDto(Comment comment) {
-        User author = UserMapper.toUser(userService.getById(comment.getAuthor()));
+        User author = UserMapper.toUser(userService.getById(comment.getAuthor().getId()));
 
         return CommentDto.builder()
                 .id(comment.getId())

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.comment.model;
 
 import lombok.*;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -25,8 +26,9 @@ public class Comment {
     @Column(nullable = false)
     private Long item;
 
-    @Column(nullable = false)
-    private Long author;
+    @ManyToOne
+    @JoinColumn(name = "author",referencedColumnName = "id", nullable = false)
+    private User author;
     @Column
     private LocalDateTime created;
 }

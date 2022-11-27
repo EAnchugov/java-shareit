@@ -73,12 +73,9 @@ public class UserServiceJPA implements UserService {
         userRepository.deleteById(id);
     }
 
-    private void userDuplicateEmailCheck(User user) {
-        List<User> users = userRepository.findAll();
-        for (User u : users) {
-            if (u.getEmail().equals(user.getEmail())) {
+    private void userDuplicateEmailCheck(User user){
+        if (userRepository.findAllByEmail(user.getEmail()).isPresent()){
             throw new DuplicateEmailException("Email Duplicate");
-            }
         }
     }
 }

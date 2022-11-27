@@ -32,13 +32,8 @@ public class UserServiceJPA implements UserService {
 
     @Override
     public UserDto getById(Long id) {
-        User user;
-        Optional<User> opUser = userRepository.findById(id);
-        if (opUser.isPresent()) {
-            user = opUser.get();
-        } else {
-            throw new NotFoundException("Нет пользователя с id =" + id);
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет пользователя с id =" + id));
         return UserMapper.toUserDTO(user);
     }
 

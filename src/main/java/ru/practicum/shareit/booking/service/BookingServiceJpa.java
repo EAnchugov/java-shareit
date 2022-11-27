@@ -15,10 +15,10 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserServiceJPA;
+import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -32,18 +32,18 @@ import static ru.practicum.shareit.booking.Status.*;
 @RequiredArgsConstructor
 public class BookingServiceJpa implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserServiceJPA userServiceJPA;
-    private final ItemServiceImpl itemServiceImpl;
+    private final UserService userService;
+    private final ItemService itemService;
     private final EntityManager entityManager;
 
 
     @Override
     @Transactional
     public LongBookingDto create(BookingDto bookingDto, Long userId) {
-        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         Booking booking = BookingMapper.toBookingFromBookingDto(bookingDto);
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(bookingDto.getItemId(), userId));
+        Item item = ItemMapper.toItem(itemService.getByID(bookingDto.getItemId(), userId));
         Long ownerId = item.getOwner().getId();
 
         if (!item.getAvailable()) {
@@ -71,7 +71,7 @@ public class BookingServiceJpa implements BookingService {
     @Transactional
     public LongBookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = getBookingById(bookingId);
-        Item item = ItemMapper.toItem(itemServiceImpl.getByID(booking.getItem().getId(), userId));
+        Item item = ItemMapper.toItem(itemService.getByID(booking.getItem().getId(), userId));
         if (!userId.equals(item.getOwner().getId())) {
             throw new NotFoundException("User не владеет вещью");
         }
@@ -90,7 +90,7 @@ public class BookingServiceJpa implements BookingService {
     @Override
     @Transactional
     public List<LongBookingDto> getAllByOwner(Long userId, String state) {
-        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
         List<LongBookingDto> ownerBookingsDto = new ArrayList<>();
@@ -146,7 +146,7 @@ public class BookingServiceJpa implements BookingService {
     @Override
     @Transactional
     public List<LongBookingDto> getAllByUser(Long userId, String state) {
-        User user = UserMapper.toUser(userServiceJPA.getById(userId));
+        User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
         List<LongBookingDto> userBookingsDto = new ArrayList<>();

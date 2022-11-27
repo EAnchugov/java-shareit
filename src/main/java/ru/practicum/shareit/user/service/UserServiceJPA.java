@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exceptions.DuplicateEmailException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
@@ -20,7 +19,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 @Primary
-@Validated
 @Transactional(readOnly = true)
 public class UserServiceJPA implements UserService {
     private final UserRepositoryJPA userRepositoryJPA;
@@ -35,7 +33,6 @@ public class UserServiceJPA implements UserService {
         return users;
     }
 
-    @Transactional
     @Override
     public UserDto getById(Long id) {
         User user;

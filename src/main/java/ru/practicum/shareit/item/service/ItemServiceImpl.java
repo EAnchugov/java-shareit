@@ -56,8 +56,6 @@ public class ItemServiceImpl implements ItemService {
         checkUser(ownerId);
         Item item = itemRepositoryJpa. findById(itemId).orElseThrow(() ->
                 new WrongParameterException("Вещь не найдена"));
-
-  //      if (item != null) {
         Long itemOwnerId = item.getOwner().getId();
 
             if (!(itemOwnerId.equals(owner.getId()))) {
@@ -239,9 +237,7 @@ public class ItemServiceImpl implements ItemService {
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
             Long ownerId = b.getItem().getOwner().getId();
-            if ( ownerId.equals(userId)
-            //        b.getItem().getOwner().equals(userId)
-            ) {
+            if (ownerId.equals(userId)) {
                 booking = b;
                 break;
             }

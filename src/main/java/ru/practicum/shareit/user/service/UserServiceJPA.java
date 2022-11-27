@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.DuplicateEmailException;
@@ -22,7 +21,6 @@ import java.util.Optional;
 public class UserServiceJPA implements UserService {
     private final UserRepository userRepository;
 
-    @Transactional
     @Override
     public List<UserDto> getAll() {
         List<UserDto> users = new ArrayList<>();

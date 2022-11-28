@@ -95,53 +95,26 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
-        List<LongBookingDto> ownerBookingsDto = new ArrayList<>();
-        Session session = entityManager.unwrap(Session.class);
         Query query;
         if (state.equals("ALL")) {
             ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
         } else if (state.equals("FUTURE")) {
-//            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-//                    "where i.owner.id = :userId AND b.end > :now order by b.start desc");
-//            query.setParameter("userId", userId);
-//            query.setParameter("now", LocalDateTime.now());
-//            ownerBookings = query.list();
             ownerBookings.addAll(
-                    bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc
-                            (user,LocalDateTime.now()));
+                    bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc(user,now));
         } else if (state.equals("PAST")) {
-            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner.id = :userId AND b.end < :now order by b.start desc");
-            query.setParameter("userId", userId);
-            query.setParameter("now", LocalDateTime.now());
-            ownerBookings = query.list();
+            ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndEndBeforeOrderByIdDesc(user,now));
         } else if (state.equals("CURRENT")) {
-            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner.id = :userId AND (b.start < :now AND b.end > :now) order by b.start desc");
-            query.setParameter("userId", userId);
-            query.setParameter("now", LocalDateTime.now());
-            ownerBookings = query.list();
+            ownerBookings.addAll(
+                    bookingRepository.findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(user,now, now));
         } else if (state.equals("WAITING")) {
-            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner.id = :userId AND b.status = :status order by b.start desc");
-            query.setParameter("userId", userId);
-            query.setParameter("status", WAITING);
-            ownerBookings = query.list();
-
+            ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,WAITING));
         } else if (state.equals("REJECTED")) {
-            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner.id = :userId AND b.status = :status order by b.start desc");
-            query.setParameter("userId", userId);
-            query.setParameter("status", REJECTED);
-            ownerBookings = query.list();
+            ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED));
         } else {
             throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
 
-        for (Booking b: ownerBookings) {
-            ownerBookingsDto.add(BookingMapper.toLongBookingDto(b));
-        }
-        return ownerBookingsDto;
+        return ownerBookings.stream().map(BookingMapper ::toLongBookingDto).collect(Collectors.toList());
     }
 
     @Override

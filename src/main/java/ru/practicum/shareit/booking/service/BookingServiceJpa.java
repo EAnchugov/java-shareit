@@ -91,6 +91,7 @@ public class BookingServiceJpa implements BookingService {
 
     @Override
     public List<LongBookingDto> getAllByOwner(Long userId, String state) {
+        LocalDateTime now = LocalDateTime.now();
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
@@ -98,17 +99,16 @@ public class BookingServiceJpa implements BookingService {
         Session session = entityManager.unwrap(Session.class);
         Query query;
         if (state.equals("ALL")) {
-            query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
-                    " where i.owner.id = :userId order by b.start desc");
-            query.setParameter("userId", userId);
-            ownerBookings = query.list();
-
+            ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
         } else if (state.equals("FUTURE")) {
-            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
-                    "where i.owner.id = :userId AND b.end > :now order by b.start desc");
-            query.setParameter("userId", userId);
-            query.setParameter("now", LocalDateTime.now());
-            ownerBookings = query.list();
+//            query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
+//                    "where i.owner.id = :userId AND b.end > :now order by b.start desc");
+//            query.setParameter("userId", userId);
+//            query.setParameter("now", LocalDateTime.now());
+//            ownerBookings = query.list();
+            ownerBookings.addAll(
+                    bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc
+                            (user,LocalDateTime.now()));
         } else if (state.equals("PAST")) {
             query = session.createQuery("select b from Booking b left join fetch b.item AS i " +
                     "where i.owner.id = :userId AND b.end < :now order by b.start desc");

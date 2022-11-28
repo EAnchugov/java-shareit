@@ -95,25 +95,30 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
-        Query query;
-        if (state.equals("ALL")) {
-            ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
-        } else if (state.equals("FUTURE")) {
-            ownerBookings.addAll(
-                    bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc(user,now));
-        } else if (state.equals("PAST")) {
-            ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndEndBeforeOrderByIdDesc(user,now));
-        } else if (state.equals("CURRENT")) {
-            ownerBookings.addAll(
-                    bookingRepository.findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(user,now, now));
-        } else if (state.equals("WAITING")) {
-            ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,WAITING));
-        } else if (state.equals("REJECTED")) {
-            ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED));
-        } else {
-            throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
+        switch (state){
+            case "ALL":
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
+                break;
+            case "FUTURE":
+                ownerBookings.addAll(
+                        bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc(user,now));
+                break;
+            case "PAST":
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndEndBeforeOrderByIdDesc(user,now));
+                break;
+            case "CURRENT":
+                ownerBookings.addAll(
+                bookingRepository.findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(user,now, now));
+                break;
+            case "WAITING":
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,WAITING));
+                break;
+            case "REJECTED":
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED));
+                break;
+            default:
+                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
-
         return ownerBookings.stream().map(BookingMapper ::toLongBookingDto).collect(Collectors.toList());
     }
 

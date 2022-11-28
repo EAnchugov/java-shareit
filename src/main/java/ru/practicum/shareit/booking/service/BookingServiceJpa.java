@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.Status.*;
 
@@ -149,26 +151,30 @@ public class BookingServiceJpa implements BookingService {
         List<Booking> userBookings = new ArrayList<>();
         List<LongBookingDto> userBookingsDto = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        if (state.equals("ALL")) {
-            userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
-        } else if (state.equals("CURRENT")) {
-            userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
-                    LocalDateTime.now(), LocalDateTime.now()));
-        } else if (state.equals("PAST")) {
-            userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now));
-        } else if (state.equals("FUTURE")) {
-            userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now));
-        } else if (state.equals("WAITING")) {
-            userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING));
-        } else if (state.equals("REJECTED")) {
-            userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
-        } else {
-            throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
+        switch (state){
+            case "ALL":
+                userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
+                break;
+            case "CURRENT":
+                userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
+                        LocalDateTime.now(), LocalDateTime.now()));
+                break;
+            case "PAST":
+                userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now));
+                break;
+            case "FUTURE":
+                userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now));
+                break;
+            case"WAITING":
+                userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING));
+                break;
+            case "REJECTED":
+                userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
+                break;
+            default:
+                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
-        for (Booking b: userBookings) {
-            userBookingsDto.add(BookingMapper.toLongBookingDto(b));
-        }
-        return userBookingsDto;
+        return userBookings.stream().map(BookingMapper ::toLongBookingDto).collect(Collectors.toList());
     }
 
     @Override

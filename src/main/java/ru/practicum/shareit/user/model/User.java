@@ -12,7 +12,6 @@ import javax.validation.constraints.Email;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

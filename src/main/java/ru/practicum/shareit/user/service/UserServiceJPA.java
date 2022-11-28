@@ -68,7 +68,7 @@ public class UserServiceJPA implements UserService {
     }
 
     private void userDuplicateEmailCheck(User user) {
-        if (userRepository.findAllByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateEmailException("Email Duplicate");
         }
     }

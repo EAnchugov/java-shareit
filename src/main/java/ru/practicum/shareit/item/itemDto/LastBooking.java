@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.itemDto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

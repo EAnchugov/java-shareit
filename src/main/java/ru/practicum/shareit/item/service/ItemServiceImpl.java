@@ -15,8 +15,8 @@ import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.LastBooking;
-import ru.practicum.shareit.item.model.NextBooking;
+import ru.practicum.shareit.item.itemDto.LastBooking;
+import ru.practicum.shareit.item.itemDto.NextBooking;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -157,12 +157,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private CommentDto toCommentDto(Comment comment) {
-        User author = UserMapper.toUser(userService.getById(comment.getAuthor().getId()));
-
         return CommentDto.builder()
                 .id(comment.getId())
                 .created(comment.getCreated())
-                .authorName(author.getName())
+                .authorName(comment.getAuthor().getName())
                 .text(comment.getText())
                 .build();
     }

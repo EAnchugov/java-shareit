@@ -88,7 +88,6 @@ public class BookingServiceJpa implements BookingService {
     }
 
     @Override
-    @Transactional
     public List<LongBookingDto> getAllByOwner(Long userId, String state) {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);

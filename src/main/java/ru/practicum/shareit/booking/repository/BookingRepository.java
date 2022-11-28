@@ -10,8 +10,11 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByItemOwnerOrderByIdDesc(User owner);
+
     List<Booking> findAllByItemOwnerAndStartAfterOrderByIdDesc(User owner, LocalDateTime start);
+
     List<Booking> findAllByItemOwnerAndEndBeforeOrderByIdDesc(User owner, LocalDateTime end);
+
     List<Booking> findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(
             User owner, LocalDateTime end, LocalDateTime start);
 

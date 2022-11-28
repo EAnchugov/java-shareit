@@ -1,11 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -21,7 +18,6 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +32,6 @@ public class BookingServiceJpa implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemService itemService;
-    private final EntityManager entityManager;
 
 
     @Override
@@ -95,7 +90,7 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
-        switch (state){
+        switch (state) {
             case "ALL":
                 ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
                 break;
@@ -119,7 +114,7 @@ public class BookingServiceJpa implements BookingService {
             default:
                 throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return ownerBookings.stream().map(BookingMapper ::toLongBookingDto).collect(Collectors.toList());
+        return ownerBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
     }
 
     @Override
@@ -127,9 +122,8 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
-        List<LongBookingDto> userBookingsDto = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        switch (state){
+        switch (state) {
             case "ALL":
                 userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
                 break;
@@ -152,7 +146,7 @@ public class BookingServiceJpa implements BookingService {
             default:
                 throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return userBookings.stream().map(BookingMapper ::toLongBookingDto).collect(Collectors.toList());
+        return userBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
     }
 
     @Override

@@ -28,7 +28,7 @@ import static ru.practicum.shareit.booking.Status.*;
 
 @Service
 @RequiredArgsConstructor
-public class BookingServiceJpa implements BookingService {
+public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemService itemService;
@@ -90,29 +90,29 @@ public class BookingServiceJpa implements BookingService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
-        switch (state) {
-            case "ALL":
+        switch (BookingState.from(state)) {
+            case ALL:
                 ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
                 break;
-            case "FUTURE":
+            case FUTURE:
                 ownerBookings.addAll(
                         bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc(user,now));
                 break;
-            case "PAST":
+            case PAST:
                 ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndEndBeforeOrderByIdDesc(user,now));
                 break;
-            case "CURRENT":
+            case CURRENT:
                 ownerBookings.addAll(
                 bookingRepository.findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(user,now, now));
                 break;
-            case "WAITING":
+            case WAITING:
                 ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,WAITING));
                 break;
-            case "REJECTED":
+            case REJECTED:
                 ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED));
                 break;
-            default:
-                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
+//            default:
+//                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
         return ownerBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
     }
@@ -123,28 +123,28 @@ public class BookingServiceJpa implements BookingService {
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case "ALL":
+        switch (BookingState.from(state)) {
+            case ALL:
                 userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
                 break;
-            case "CURRENT":
+            case CURRENT:
                 userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
                         LocalDateTime.now(), LocalDateTime.now()));
                 break;
-            case "PAST":
+            case PAST:
                 userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now));
                 break;
-            case "FUTURE":
+            case FUTURE:
                 userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now));
                 break;
-            case"WAITING":
+            case WAITING:
                 userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING));
                 break;
-            case "REJECTED":
+            case REJECTED:
                 userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
                 break;
-            default:
-                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
+//            default:
+//                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
         return userBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
     }

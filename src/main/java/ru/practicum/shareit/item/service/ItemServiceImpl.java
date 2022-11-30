@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
@@ -26,7 +27,11 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -100,17 +105,11 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
-        try {
-            itemDto.setLastBooking(getLastBooking(id, userId));
-            itemDto.setNextBooking(getNextBooking(id, userId));
-        } finally {
-            return itemDto;
-        }
-    }
+
 
     @Override
     public List<ItemDto> getAll(Long userId) {
+        //Получить список бронирований по итему
             User user = UserMapper.toUser(userService.getById(userId));
             user.setId(userId);
             List<ItemDto> items = new ArrayList<>();
@@ -123,6 +122,7 @@ public class ItemServiceImpl implements ItemService {
                 }
             }
         return items;
+
     }
 
     @Override
@@ -192,6 +192,15 @@ public class ItemServiceImpl implements ItemService {
         return commentDtoList;
     }
 
+    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
+        //Получить
+        try {
+            itemDto.setLastBooking(getLastBooking(id, userId));
+            itemDto.setNextBooking(getNextBooking(id, userId));
+        } finally {
+            return itemDto;
+        }
+    }
     private LastBooking getLastBooking(Long itemId, Long userId) {
         Session session = entityManager.unwrap(Session.class);
         Query query;

@@ -1,9 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.Status;
 
@@ -20,8 +18,8 @@ public class LongBookingDto {
     private Item item;
     private Booker booker;
     private Status status;
-    @Data
 
+    @Data
     public static class Booker {
         private final long id;
         private final String name;

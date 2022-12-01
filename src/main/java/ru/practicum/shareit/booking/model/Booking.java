@@ -31,7 +31,4 @@ public class Booking {
     private User booker;
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    public static class Booker {
-    }
 }

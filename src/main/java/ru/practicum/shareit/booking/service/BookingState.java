@@ -8,11 +8,12 @@ public enum BookingState {
     PAST,
     CURRENT,
     WAITING,
-    REJECTED    ;
-    public static BookingState from(String state){
+    REJECTED;
+
+    public static BookingState from(String state) {
         try {
             return BookingState.valueOf(state);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
     }

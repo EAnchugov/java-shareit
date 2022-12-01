@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
@@ -15,9 +14,9 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.itemDto.LastBooking;
 import ru.practicum.shareit.item.itemDto.NextBooking;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -27,11 +26,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -201,6 +196,7 @@ public class ItemServiceImpl implements ItemService {
             return itemDto;
         }
     }
+
     private LastBooking getLastBooking(Long itemId, Long userId) {
         Session session = entityManager.unwrap(Session.class);
         Query query;

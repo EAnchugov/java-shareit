@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.Dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepositoryJpa;
@@ -35,6 +36,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CommentRepositoryJpa commentRepository;
     private final EntityManager entityManager;
+    private final BookingRepository bookingRepository;
 
     @Override
     @Transactional
@@ -42,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
         checkUser(ownerId);
         User owner = UserMapper.toUser(userService.getById(ownerId));
         owner.setId(ownerId);
-        itemDto.setOwner(owner);
+        itemDto.setOwner(new ItemDto.Owner(ownerId, owner.getName()));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         return ItemMapper.toItemDto(itemRepository.save(item));
@@ -105,7 +107,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAll(Long userId) {
         //Получить список бронирований по итему
-            User user = UserMapper.toUser(userService.getById(userId));
+        User user = UserMapper.toUser(userService.getById(userId));
+ //       System.out.println(bookingRepository.findBookingByItem_Owner_Id(userId));
+
+
             user.setId(userId);
             List<ItemDto> items = new ArrayList<>();
                 for (Item item : itemRepository.findAllByOwner(user)) {
@@ -188,7 +193,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
-        //Получить
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
             itemDto.setNextBooking(getNextBooking(id, userId));

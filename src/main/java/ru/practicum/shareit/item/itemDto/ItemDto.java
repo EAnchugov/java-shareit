@@ -23,7 +23,12 @@ public class ItemDto {
     private Boolean available;
     private LastBooking lastBooking;
     private NextBooking nextBooking;
-    private User owner;
+    private Owner owner;
     private Long request;
     private List<CommentDto> comments;
+    @Data
+    public static class Owner {
+        private final long id;
+        private final String name;
+    }
 }

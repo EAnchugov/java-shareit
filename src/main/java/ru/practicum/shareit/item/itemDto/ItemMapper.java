@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.itemDto;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
@@ -12,7 +13,7 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .name(item.getName())
                 .id(item.getId())
-                .owner(item.getOwner())
+                .owner(new ItemDto.Owner(item.getOwner().getId(),item.getOwner().getName()))
                 .request(item.getRequest())
                 .build();
     }
@@ -23,7 +24,7 @@ public class ItemMapper {
                 .available(itemDto.getAvailable())
                 .description(itemDto.getDescription())
                 .name(itemDto.getName())
-                .owner(itemDto.getOwner())
+                .owner(new User(itemDto.getOwner().getId(), itemDto.getOwner().getName(),itemDto.getOwner().getName()))
                 .request(itemDto.getRequest())
                 .build();
     }

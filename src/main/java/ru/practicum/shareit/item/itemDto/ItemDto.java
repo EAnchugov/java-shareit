@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.comment.Dto.CommentDto;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -26,6 +25,7 @@ public class ItemDto {
     private Owner owner;
     private Long request;
     private List<CommentDto> comments;
+
     @Data
     public static class Owner {
         private final long id;

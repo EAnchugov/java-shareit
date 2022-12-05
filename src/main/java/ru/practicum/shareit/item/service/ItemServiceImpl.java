@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
@@ -25,18 +27,22 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final CommentRepositoryJpa commentRepository;
     private final EntityManager entityManager;
     private final BookingRepository bookingRepository;
+    private final Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     @Transactional
@@ -102,28 +108,71 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
-
     @Override
     public List<ItemDto> getAll(Long userId) {
-        //Получить список бронирований по итему
+
         User user = UserMapper.toUser(userService.getById(userId));
- //       System.out.println(bookingRepository.findBookingByItem_Owner_Id(userId));
+        user.setId(userId);
+        List<Item> items = itemRepository.findAllByOwner(user);
+            Map<Item, List<Booking>> approvedBookings =  bookingRepository.findApprovedForItems(items, sort)
+                        .stream()
+                        .collect(groupingBy(Booking::getItem, toList()));
+        System.out.println(approvedBookings.toString());
+        LocalDateTime now = LocalDateTime.now();
+        List<ItemDto> itemDtoList = new ArrayList<>();
 
+        List<Comment> comments =
+                commentRepository.findAllByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
+                        .stream()
+                        .collect(Collectors.toUnmodifiableList());groupingBy(Comment ::getItem, toList());
 
-            user.setId(userId);
-            List<ItemDto> items = new ArrayList<>();
-                for (Item item : itemRepository.findAllByOwner(user)) {
-                    Long ownerId = item.getOwner().getId();
-                if (ownerId.equals(userId)) {
-                    ItemDto itemDto1 = ItemMapper.toItemDto(item);
-                    itemDto1 = itemDtoBuild(itemDto1,item.getId(),userId);
-                    items.add(itemDto1);
-                }
+        for (Item i : items){
+            NextBooking nextBooking12 = new NextBooking();
+            LastBooking lastBooking12 = new LastBooking();
+            ItemDto itemDto = ItemMapper.toItemDto(i);
+            Booking nextBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
+                    .filter(booking -> (booking.getStart().isAfter(now)))
+                    .reduce((first, second) -> second)
+                    .orElse(null);
+
+            if(nextBooking != null){
+                nextBooking12.setId(nextBooking.getId());
+                nextBooking12.setBookerId(nextBooking.getBooker().getId());
             }
-        return items;
 
+//            if (nextBooking12.getId().equals(null) && nextBooking12.getBookerId().equals(null)){
+//                itemDto.setNextBooking(null);
+//            } else {
+//                itemDto.setNextBooking(nextBooking12);
+//            }
+            itemDto.setNextBooking(nextBooking12);
+
+            Booking lastBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
+                    .filter(b -> ((b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
+                        || (b.getStart().isEqual(now) || b.getStart().isBefore(now))))
+                .findFirst()
+                .orElse(null);
+            if (lastBooking != null){
+                lastBooking12.setId(lastBooking.getId());
+                lastBooking12.setBookerId(lastBooking.getBooker().getId());
+            }
+//            if (lastBooking12.getId().equals(null) && lastBooking12.getBookerId().equals(null)){
+//                itemDto.setLastBooking(null);
+//            } else {
+//                itemDto.setLastBooking(lastBooking12);
+//            }
+            itemDto.setLastBooking(lastBooking12);
+            List<Comment> addComment = comments.stream()
+                    .filter(comment -> (itemDto.getId().equals(comment.getItem().getId())))
+                    .collect(Collectors.toList());
+            itemDto.setComments(addComment.stream().map(this::toCommentDto).collect(Collectors.toList()));
+            itemDtoList.add(itemDto);
+        }
+
+
+        return itemDtoList;
     }
+
 
     @Override
     public List<ItemDto> search(String request) {

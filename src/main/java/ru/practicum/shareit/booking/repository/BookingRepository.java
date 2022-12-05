@@ -1,11 +1,19 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.hibernate.Session;
+import org.hibernate.engine.spi.SessionLazyDelegator;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -30,7 +38,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBookerAndStartAfterOrderByStartDesc(User user, LocalDateTime localDateTime);
 
     List<Booking> findByBookerAndStatusOrderByStartDesc(User user, Status status);
+   @Query("select b from Booking b where b.item in ?1 and b.status = 'APPROVED'")
+    List<Booking> findApprovedForItems(List<Item> items, Sort sort);
 
-    List<Booking> findBookingByItem_Owner_Id(Long id);
+
 
 }

@@ -51,4 +51,12 @@ public class ErrorHandler {
     private void handle(final MethodArgumentNotValidException e) {
         log.error("Ошибка " + e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorResponse handle(final ItemNotAvailableException e) {
+        log.error("Ошибка " + e.getMessage());
+        return new ErrorResponse(
+                e.getMessage());
+    }
 }

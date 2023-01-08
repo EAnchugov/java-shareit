@@ -110,7 +110,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAll(Long userId) {
-
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Item> items = itemRepository.findAllByOwner(user);
@@ -124,44 +123,32 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments =
                 commentRepository.findAllByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
                         .stream()
-                        .collect(Collectors.toUnmodifiableList());groupingBy(Comment ::getItem, toList());
+                        .collect(Collectors.toUnmodifiableList());groupingBy(Comment::getItem, toList());
+//                        .collect(groupingBy(Comment::getItem,toList()));
 
-        for (Item i : items){
-            NextBooking nextBooking12 = new NextBooking();
-            LastBooking lastBooking12 = new LastBooking();
+        for (Item i : items) {
             ItemDto itemDto = ItemMapper.toItemDto(i);
             Booking nextBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
                     .filter(booking -> (booking.getStart().isAfter(now)))
                     .reduce((first, second) -> second)
                     .orElse(null);
 
-            if(nextBooking != null){
-                nextBooking12.setId(nextBooking.getId());
-                nextBooking12.setBookerId(nextBooking.getBooker().getId());
+            if (nextBooking != null) {
+                itemDto.setNextBooking(
+                        new NextBooking(nextBooking.getId(), nextBooking.getBooker().getId()));
             }
 
-//            if (nextBooking12.getId().equals(null) && nextBooking12.getBookerId().equals(null)){
-//                itemDto.setNextBooking(null);
-//            } else {
-//                itemDto.setNextBooking(nextBooking12);
-//            }
-            itemDto.setNextBooking(nextBooking12);
 
             Booking lastBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
                     .filter(b -> ((b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
                         || (b.getStart().isEqual(now) || b.getStart().isBefore(now))))
                 .findFirst()
                 .orElse(null);
-            if (lastBooking != null){
-                lastBooking12.setId(lastBooking.getId());
-                lastBooking12.setBookerId(lastBooking.getBooker().getId());
+            if (lastBooking != null) {
+                itemDto.setLastBooking(new LastBooking(lastBooking.getId(), lastBooking.getBooker().getId()));
+
             }
-//            if (lastBooking12.getId().equals(null) && lastBooking12.getBookerId().equals(null)){
-//                itemDto.setLastBooking(null);
-//            } else {
-//                itemDto.setLastBooking(lastBooking12);
-//            }
-            itemDto.setLastBooking(lastBooking12);
+
             List<Comment> addComment = comments.stream()
                     .filter(comment -> (itemDto.getId().equals(comment.getItem().getId())))
                     .collect(Collectors.toList());

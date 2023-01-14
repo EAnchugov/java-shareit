@@ -50,10 +50,7 @@ public class BookingServiceImpl implements BookingService {
         if (ownerId.equals(userId)) {
             throw new NotFoundException("Нельзя бронировать у себя");
         }
-        if (booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new WrongParameterException("нельзя бронировать в прошлом");
-        }
-        if (booking.getEnd().isBefore(LocalDateTime.now())) {
+        if (!booking.getStart().isBefore(booking.getEnd())) {
             throw new WrongParameterException("Нельзя сдавать в прошлом");
         }
         if (booking.getStart().isAfter(booking.getEnd())) {
@@ -81,7 +78,6 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(REJECTED);
         }
-        bookingRepository.save(booking);
         return BookingMapper.toLongBookingDto(bookingRepository.save(booking));
     }
 
@@ -112,8 +108,6 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED));
                 break;
-//            default:
-//                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
         return ownerBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
     }
@@ -144,8 +138,6 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
                 break;
-//            default:
-//                throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
         }
         return userBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());
     }

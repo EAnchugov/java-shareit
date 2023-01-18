@@ -40,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final CommentRepositoryJpa commentRepository;
-    private final EntityManager entityManager;
+
     private final BookingRepository bookingRepository;
     private final Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
@@ -124,7 +124,6 @@ public class ItemServiceImpl implements ItemService {
                 commentRepository.findAllByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
                         .stream()
                         .collect(Collectors.toUnmodifiableList());groupingBy(Comment::getItem, toList());
-//                        .collect(groupingBy(Comment::getItem,toList()));
 
         for (Item i : items) {
             ItemDto itemDto = ItemMapper.toItemDto(i);
@@ -202,15 +201,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean commentCheck(Long itemId, Long authorId) {
-        Session session = entityManager.unwrap(Session.class);
-        Query query;
-        query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
-                " where i.id = :itemId and b.booker.id = :authorId and b.end < :now and b.status = :status");
-        query.setParameter("itemId", itemId);
-        query.setParameter("authorId", authorId);
-        query.setParameter("now", LocalDateTime.now());
-        query.setParameter("status", Status.APPROVED);
-        List<Booking> commentBookings = query.list();
+        List<Booking> commentBookings = itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
         if (commentBookings.size() == 0) {
             return false;
         } else {
@@ -238,12 +229,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private LastBooking getLastBooking(Long itemId, Long userId) {
-        Session session = entityManager.unwrap(Session.class);
-        Query query;
-        query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
-                " where i.id = :itemId order by b.id asc");
-        query.setParameter("itemId", itemId);
-        List<Booking> itemBookings = query.list();
+        List<Booking> itemBookings = itemRepository.getItemBookings(itemId);
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
             Long ownerId = b.getItem().getOwner().getId();
@@ -261,13 +247,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private NextBooking getNextBooking(Long itemId, Long userId) {
-        Session session = entityManager.unwrap(Session.class);
-        Query query;
-        query = session.createQuery("select b from Booking b left join fetch b.item AS i" +
-                " where i.id = :itemId and b.start > :now order by b.start asc");
-        query.setParameter("itemId", itemId);
-        query.setParameter("now", LocalDateTime.now());
-        List<Booking> itemBookings = query.list();
+        List<Booking> itemBookings = itemRepository.getItemNextBooking(itemId,LocalDateTime.now());
         Booking booking = new Booking();
         for (Booking b: itemBookings) {
             Long ownerId = b.getItem().getOwner().getId();

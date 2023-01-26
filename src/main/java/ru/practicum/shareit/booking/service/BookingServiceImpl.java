@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.Status.*;
@@ -144,6 +143,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public LongBookingDto getBookingDtoById(Long bookingId, Long userId) {
+
         Booking booking = getBookingById(bookingId);
         if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner().getId())) {
             throw new NotFoundException("Не автор бронирования или владелец вещи");
@@ -152,13 +152,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Booking getBookingById(Long id) {
-        Booking booking;
-        Optional<Booking> optionalBooking = bookingRepository.findById(id);
-        if (optionalBooking.isPresent()) {
-            booking = optionalBooking.get();
-        } else {
-            throw new NotFoundException("Нет вещи с id =" + id);
-        }
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Нет вещи с id =" + id));
         return booking;
     }
 }

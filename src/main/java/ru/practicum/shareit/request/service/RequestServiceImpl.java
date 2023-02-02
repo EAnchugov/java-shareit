@@ -25,11 +25,6 @@ public class RequestServiceImpl implements RequestService{
 
 
     @Override
-    public Request create(Long userId, String description) {
-        return null;
-    }
-
-    @Override
     public Request create(Long userId, RequestDtoInput input){
         return requestRepository.save(
                 Request.builder()
@@ -49,6 +44,9 @@ public class RequestServiceImpl implements RequestService{
 
     @Override
     public List<Request> getAll(Long userId, Integer from, Integer size) {
+                if (from < 0 || size <1){
+            throw new IllegalArgumentException("Ошибка в getAll");
+        }
 
         User user = UserMapper.toUser(userService.getById(userId));
         List <Request> notUserRequest = new ArrayList<>();

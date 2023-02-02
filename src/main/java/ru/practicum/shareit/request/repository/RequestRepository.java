@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByRequesterOrderById(User requester);
+    List<Request> findAllByRequesterNot(User user);
 }

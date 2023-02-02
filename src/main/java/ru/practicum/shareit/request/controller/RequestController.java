@@ -43,21 +43,28 @@ public class RequestController {
     @GetMapping
     public List<RequestDtoOut> getAllUserRequest (@RequestHeader("X-Sharer-User-Id") Long userId
     ){
-        return requestService.getAllUserRequest(userId).stream().map(RequestMapper :: mapper1).collect(Collectors.toList());
+        return requestService.getAllUserRequest(userId)
+                .stream().map(RequestMapper :: mapper1).collect(Collectors.toList());
     }
 
     @GetMapping("/all")
     public List<RequestDtoOut> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
-                                      @Positive @RequestParam(value = "size", defaultValue = "20") Integer size) {
-        return null;
+                                     @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                     @RequestParam(value = "size", defaultValue = "20") Integer size) {
+        if (userId<1 || size <1){
+            throw new IllegalArgumentException("Ошибка в getAll");
+        }
+        else {
+            return requestService.getAll(userId, from,size)
+                    .stream().map(RequestMapper :: mapper1).collect(Collectors.toList());
+        }
+
     }
 
     @GetMapping("/{requestId}")
     public RequestDtoOut getById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable("requestId") Long requestId) {
-        return null;
+        requestService.getById(userId, requestId);
+        return RequestMapper.mapper1(requestService.getById(userId, requestId));
     }
-
-
 }

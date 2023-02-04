@@ -6,13 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.RequestMapper;
 import ru.practicum.shareit.request.dto.RequestDtoInput;
 import ru.practicum.shareit.request.dto.RequestDtoOut;
-import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.userDTO.Create;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,36 +25,31 @@ public class RequestController {
     public RequestDtoOut addRequest(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestBody @Validated(Create.class) RequestDtoInput input
-            ){
-        return RequestMapper.mapper1(requestService.create(userId,input));
+            ) {
+        return RequestMapper.requestToOutDto(requestService.create(userId,input));
 
     }
 
     @GetMapping
-    public List<RequestDtoOut> getAllUserRequest (@RequestHeader("X-Sharer-User-Id") Long userId
-    ){
+    public List<RequestDtoOut> getAllUserRequest(@RequestHeader("X-Sharer-User-Id") Long userId
+    ) {
         return requestService.getAllUserRequest(userId)
-                .stream().map(RequestMapper :: mapper1).collect(Collectors.toList());
+                .stream().map(RequestMapper::requestToOutDto).collect(Collectors.toList());
     }
 
     @GetMapping("/all")
     public List<RequestDtoOut> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
                                      @RequestParam(value = "from", defaultValue = "0") Integer from,
                                      @RequestParam(value = "size", defaultValue = "20") Integer size) {
-//        if (userId<1 || size <1){
-//            throw new IllegalArgumentException("Ошибка в getAll");
-//        }
-//        else {
-            return requestService.getAll(userId, from,size)
-                    .stream().map(RequestMapper :: mapper1).collect(Collectors.toList());
-//        }
 
+            return requestService.getAll(userId, from,size)
+                    .stream().map(RequestMapper::requestToOutDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{requestId}")
     public RequestDtoOut getById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable("requestId") Long requestId) {
         requestService.getById(userId, requestId);
-        return RequestMapper.mapper1(requestService.getById(userId, requestId));
+        return RequestMapper.requestToOutDto(requestService.getById(userId, requestId));
     }
 }

@@ -78,8 +78,8 @@ public class ItemServiceImpl implements ItemService {
             if (dto.getOwner() != null) {
                 item.setOwner(owner);
             }
-            if (dto.getRequest() != null) {
-                item.setRequest(dto.getRequest());
+            if (dto.getRequestId() != null) {
+                item.setRequest(dto.getRequestId());
             }
         item.setId(itemId);
         item.setOwner(owner);

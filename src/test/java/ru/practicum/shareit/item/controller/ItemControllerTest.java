@@ -74,7 +74,7 @@ class ItemControllerTest {
                 .nextBooking(NEXTBOOKING)
                 .owner(OWNER)
                 .available(true)
-                .request(REQUEST)
+                .requestId(REQUEST)
                 .comments(comments)
                 .build();
     }

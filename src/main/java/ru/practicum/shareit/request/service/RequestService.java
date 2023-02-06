@@ -13,4 +13,6 @@ public interface RequestService {
     List<Request> getAll(Long userId, Integer from, Integer size);
 
     Request getById(Long userId, Long requestId);
+
+    List<Request> getAll1(Long userId, Integer from, Integer size);
 }

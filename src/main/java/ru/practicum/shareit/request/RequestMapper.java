@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 public class RequestMapper {
     public static RequestDtoOut requestToOutDto(Request request) {
         List<Item> itemsList = new ArrayList<>();
-
         if (request.getItems() != null){
             itemsList = request.getItems();
         }
@@ -25,7 +24,6 @@ public class RequestMapper {
                 .id(request.getId())
                 .requestor(request.getRequester())
                 .created(request.getCreated())
-//                .items(request.getItems().stream().map(ItemMapper :: toItemDto).collect(Collectors.toList()))
                 .items(itemsList.stream().map(ItemMapper :: toItemDto).collect(Collectors.toList()))
                 .build();
     }

@@ -44,7 +44,6 @@ public class RequestController {
     public List<RequestDtoOut> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
                                      @RequestParam(value = "from", defaultValue = "0") Integer from,
                                      @RequestParam(value = "size", defaultValue = "20") Integer size) {
-
             return requestService.getAll(userId, from,size)
                     .stream().map(RequestMapper::requestToOutDto).collect(Collectors.toList());
     }

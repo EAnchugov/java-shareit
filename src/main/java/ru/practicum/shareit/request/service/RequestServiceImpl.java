@@ -2,6 +2,8 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -18,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -43,16 +47,9 @@ public class RequestServiceImpl implements RequestService {
         UserDto userDto = userService.getById(userId);
         User user = UserMapper.toUser(userDto);
         List<Request> userRequest = new ArrayList<>();
-        List<Item> items = itemService.getItemsByRequest(1L);
         userRequest.addAll(requestRepository.findAllByRequesterOrderById(user));
-        for (Request r: userRequest) {
-            System.out.println(r.getItems());
-            if (r.getItems() == null){
-                r.setItems(new ArrayList<>());
-            }else {
-                r.setItems(items);
-            }
-        }
+        userRequest = addItemsToRequest(userRequest);
+
 //        userRequest.stream().forEach(request -> {request.getItems().addAll(items);});
         return userRequest;
     }
@@ -67,6 +64,8 @@ public class RequestServiceImpl implements RequestService {
         List<Request> notUserRequest = new ArrayList<>();
         notUserRequest.addAll(requestRepository.findAllByRequesterNot(user)
                 .stream().limit(size).collect(Collectors.toList()));
+        notUserRequest.stream().filter(request -> request.getId() >= from && request.getId() <= from+size);
+        notUserRequest = addItemsToRequest(notUserRequest);
         return notUserRequest;
     }
 
@@ -78,5 +77,32 @@ public class RequestServiceImpl implements RequestService {
         } else {
             throw new IllegalArgumentException("нет реквеста с нужным ID");
         }
+    }
+
+    @Override
+    public List<Request> getAll1(Long userId, Integer from, Integer size) {
+        return null;
+    }
+
+//    @Override
+//    public List<Request> getAll1(Long userId, Integer from, Integer size) {
+//        userService.getById(userId);
+//        return getWithItems(requestRepository
+//                .getAllWithSize(userId, PageRequest.of(from, size, Sort.by(DESC, "created"))));
+//    }
+
+    private List<Request> addItemsToRequest (List<Request> requests){
+
+        for (Request r: requests) {
+            List<Item> items = itemService.getItemsByRequest(r.getId());
+            if (r.getItems() == null){
+
+                r.setItems(new ArrayList<>());
+            }else {
+                r.setItems(items);
+            }
+        }
+        return requests;
+
     }
 }

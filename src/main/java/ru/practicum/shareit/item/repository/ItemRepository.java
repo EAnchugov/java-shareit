@@ -23,6 +23,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("select b from Booking b left join fetch b.item AS i where i.id = :itemId and b.start > :now order by b.start asc")
     List<Booking> getItemNextBooking(Long itemId, LocalDateTime now);
 
-
+    List<Item> getByRequestOrderById(Long request);
 
 }

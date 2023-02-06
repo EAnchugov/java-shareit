@@ -3,12 +3,15 @@ package ru.practicum.shareit.request.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.RequestDtoInput;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.userDTO.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserService userService;
+    private final ItemService itemService;
 
 
     @Override
@@ -36,9 +40,20 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<Request> getAllUserRequest(Long userId) {
-        User user = UserMapper.toUser(userService.getById(userId));
+        UserDto userDto = userService.getById(userId);
+        User user = UserMapper.toUser(userDto);
         List<Request> userRequest = new ArrayList<>();
+        List<Item> items = itemService.getItemsByRequest(1L);
         userRequest.addAll(requestRepository.findAllByRequesterOrderById(user));
+        for (Request r: userRequest) {
+            System.out.println(r.getItems());
+            if (r.getItems() == null){
+                r.setItems(new ArrayList<>());
+            }else {
+                r.setItems(items);
+            }
+        }
+//        userRequest.stream().forEach(request -> {request.getItems().addAll(items);});
         return userRequest;
     }
 

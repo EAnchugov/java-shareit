@@ -28,4 +28,16 @@ public class Item {
     private User owner;
     @Column(nullable = false)
     private Long request;
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", available=" + available +
+                ", owner=" + owner +
+                ", request=" + request +
+                '}';
+    }
 }

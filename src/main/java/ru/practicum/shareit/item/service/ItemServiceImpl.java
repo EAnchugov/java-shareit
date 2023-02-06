@@ -50,7 +50,9 @@ public class ItemServiceImpl implements ItemService {
         itemDto.setOwner(new ItemDto.Owner(ownerId, owner.getName()));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        Item save = itemRepository.save(item);
+        log.info("ItemsSave {} {}",save.getRequest(),save.toString());
+        return ItemMapper.toItemDto(save);
     }
 
     @Override
@@ -265,5 +267,10 @@ public class ItemServiceImpl implements ItemService {
         } catch (RuntimeException e) {
             throw new NotFoundException("Юзер с ID " + userId + " не найден " + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public List<Item> getItemsByRequest(Long requestId){
+        return itemRepository.getByRequestOrderById(requestId);
     }
 }

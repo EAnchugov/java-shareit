@@ -13,7 +13,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     private ErrorResponse handle(final DuplicateEmailException e) {
-        log.error("Ошибка " + e.getMessage());
+        log.error("Ошибка DuplicateEmailException" + e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -22,7 +22,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ErrorResponse handle(final WrongParameterException e) {
-        log.error("Ошибка " + e.getMessage());
+        log.error("Ошибка WrongParameterException" + e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -31,7 +31,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private ErrorResponse handle(final NotFoundException e) {
-        log.error("Ошибка " + e.getMessage());
+        log.error("Ошибка NotFoundException " + e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -40,7 +40,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     private ErrorResponse handle(final Throwable e) {
-        log.error("Ошибка " + e.getMessage());
+        log.error("Ошибка Throwable e " + e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -49,13 +49,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private void handle(final MethodArgumentNotValidException e) {
-        log.error("Ошибка " + e.getMessage());
+        log.error("Ошибка MethodArgumentNotValidException " + e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ErrorResponse handle(final ItemNotAvailableException e) {
-        log.error("Ошибка " + e.getMessage());
+        log.error("Ошибка ItemNotAvailableException " + e.getMessage());
         return new ErrorResponse(
                 e.getMessage());
     }

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.RequestMapper;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Slf4j
 public class RequestController {
     private final RequestService requestService;
 
@@ -26,6 +28,7 @@ public class RequestController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestBody @Validated(Create.class) RequestDtoInput input
             ) {
+        log.info("создание реквеста: UserID " + userId + " input " + input.toString() );
         return RequestMapper.requestToOutDto(requestService.create(userId,input));
 
     }

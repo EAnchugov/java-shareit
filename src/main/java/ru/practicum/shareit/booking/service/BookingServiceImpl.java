@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static ru.practicum.shareit.booking.Status.*;
 
 @Service
@@ -112,30 +116,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<LongBookingDto> getAllByUser(Long userId, String state) {
+    public List<LongBookingDto> getAllByUser(Long userId, String state, Integer from, Integer size) {
+        if (from < 0 || size < 1) {
+            throw new IllegalArgumentException("Неверные from или size");
+        }
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by(DESC, "start"));
         switch (BookingState.from(state)) {
             case ALL:
-                userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user));
+                userBookings.addAll(bookingRepository.findAllByBookerOrderByStartDesc(user,pageable));
                 break;
             case CURRENT:
                 userBookings.addAll(bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(user,
-                        LocalDateTime.now(), LocalDateTime.now()));
+                        LocalDateTime.now(), LocalDateTime.now(), pageable));
                 break;
             case PAST:
-                userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now));
+                userBookings.addAll(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(user,now, pageable));
                 break;
             case FUTURE:
-                userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now));
+                userBookings.addAll(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(user,now, pageable));
                 break;
             case WAITING:
-                userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING));
+                userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, WAITING, pageable));
                 break;
             case REJECTED:
-                userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED));
+                userBookings.addAll(bookingRepository.findByBookerAndStatusOrderByStartDesc(user, REJECTED, pageable));
                 break;
         }
         return userBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());

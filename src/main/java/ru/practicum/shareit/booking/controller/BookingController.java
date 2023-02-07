@@ -7,6 +7,8 @@ import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -35,8 +37,12 @@ public class BookingController {
 
     @GetMapping
     public List<LongBookingDto> getAllByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getAllByUser(userId, state);
+                                         @RequestParam(defaultValue = "ALL") String state,
+                                             @PositiveOrZero @RequestParam(value = "from",
+                                                     defaultValue = "0") Integer from,
+                                             @Positive @RequestParam(value = "size",
+                                                     defaultValue = "20") Integer size) {
+        return bookingService.getAllByUser(userId, state, from, size);
     }
 
     @GetMapping("/{bookingId}")

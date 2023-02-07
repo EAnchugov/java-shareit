@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,16 +24,17 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByItemOwnerAndStatusEqualsOrderByIdDesc(User owner, Status status);
 
-    List<Booking> findAllByBookerOrderByStartDesc(User booker);
+    List<Booking> findAllByBookerOrderByStartDesc(User booker, Pageable pageable);
 
     List<Booking> findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(User user,
-                                                                           LocalDateTime start, LocalDateTime end);
+                                                                           LocalDateTime start, LocalDateTime end,
+                                                                           Pageable pageable);
 
-    List<Booking> findByBookerAndEndBeforeOrderByStartDesc(User user, LocalDateTime localDateTime);
+    List<Booking> findByBookerAndEndBeforeOrderByStartDesc(User user, LocalDateTime localDateTime, Pageable pageable);
 
-    List<Booking> findByBookerAndStartAfterOrderByStartDesc(User user, LocalDateTime localDateTime);
+    List<Booking> findByBookerAndStartAfterOrderByStartDesc(User user, LocalDateTime localDateTime, Pageable pageable);
 
-    List<Booking> findByBookerAndStatusOrderByStartDesc(User user, Status status);
+    List<Booking> findByBookerAndStatusOrderByStartDesc(User user, Status status, Pageable pageable);
 
    @Query("select b from Booking b where b.item in ?1 and b.status = 'APPROVED'")
     List<Booking> findApprovedForItems(List<Item> items, Sort sort);

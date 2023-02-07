@@ -270,7 +270,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getItemsByRequest(Long requestId){
+    public List<Item> getItemsByRequest(Long requestId) {
         return itemRepository.getByRequestOrderById(requestId);
     }
 }

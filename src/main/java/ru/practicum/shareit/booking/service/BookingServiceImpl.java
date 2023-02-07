@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ItemNotAvailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.PaginationCheck;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -35,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemService itemService;
+    private final PaginationCheck paginationCheck;
 
 
 
@@ -86,9 +88,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<LongBookingDto> getAllByOwner(Long userId, String state, Integer from, Integer size) {
-        if (from < 0 || size < 1) {
-            throw new IllegalArgumentException("Неверные from или size");
-        }
+        paginationCheck.paginationCheck(from, size);
         Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by(DESC, "start"));
         LocalDateTime now = LocalDateTime.now();
         User user = UserMapper.toUser(userService.getById(userId));
@@ -96,7 +96,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> ownerBookings = new ArrayList<>();
         switch (BookingState.from(state)) {
             case ALL:
-                ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user, pageable) );
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user, pageable));
                 break;
             case FUTURE:
                 ownerBookings.addAll(
@@ -121,9 +121,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<LongBookingDto> getAllByUser(Long userId, String state, Integer from, Integer size) {
-        if (from < 0 || size < 1) {
-            throw new IllegalArgumentException("Неверные from или size");
-        }
+        paginationCheck.paginationCheck(from, size);
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> userBookings = new ArrayList<>();

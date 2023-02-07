@@ -9,7 +9,6 @@ import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.model.RequestAuthor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,16 +16,15 @@ import java.util.stream.Collectors;
 public class RequestMapper {
     public static RequestDtoOut requestToOutDto(Request request) {
         List<Item> itemsList = new ArrayList<>();
-        if (request.getItems() != null){
+        if (request.getItems() != null) {
             itemsList = request.getItems();
         }
         RequestAuthor requestAuthor = new RequestAuthor(request.getRequester().getId(), request.getRequester().getName());
         return RequestDtoOut.builder()
                 .description(request.getDescriptionRequest())
                 .id(request.getId())
-//                .requestor(request.getRequester())
                 .created(request.getCreated())
-                .items(itemsList.stream().map(ItemMapper :: toItemDto).collect(Collectors.toList()))
+                .items(itemsList.stream().map(ItemMapper:: toItemDto).collect(Collectors.toList()))
                 .requestAuthor(requestAuthor)
                 .build();
     }

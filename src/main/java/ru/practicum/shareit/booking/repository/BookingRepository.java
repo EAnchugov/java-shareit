@@ -13,16 +13,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findAllByItemOwnerOrderByIdDesc(User owner);
+    List<Booking> findAllByItemOwnerOrderByIdDesc(User owner, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndStartAfterOrderByIdDesc(User owner, LocalDateTime start);
+    List<Booking> findAllByItemOwnerAndStartAfterOrderByIdDesc(User owner, LocalDateTime start, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndEndBeforeOrderByIdDesc(User owner, LocalDateTime end);
+    List<Booking> findAllByItemOwnerAndEndBeforeOrderByIdDesc(User owner, LocalDateTime end, Pageable pageable);
 
     List<Booking> findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(
-            User owner, LocalDateTime end, LocalDateTime start);
+            User owner, LocalDateTime end, LocalDateTime start, Pageable pageable);
 
-    List<Booking> findAllByItemOwnerAndStatusEqualsOrderByIdDesc(User owner, Status status);
+    List<Booking> findAllByItemOwnerAndStatusEqualsOrderByIdDesc(User owner, Status status, Pageable pageable);
 
     List<Booking> findAllByBookerOrderByStartDesc(User booker, Pageable pageable);
 

@@ -85,31 +85,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<LongBookingDto> getAllByOwner(Long userId, String state) {
+    public List<LongBookingDto> getAllByOwner(Long userId, String state, Integer from, Integer size) {
+        if (from < 0 || size < 1) {
+            throw new IllegalArgumentException("Неверные from или size");
+        }
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by(DESC, "start"));
         LocalDateTime now = LocalDateTime.now();
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Booking> ownerBookings = new ArrayList<>();
         switch (BookingState.from(state)) {
             case ALL:
-                ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user));
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerOrderByIdDesc(user, pageable) );
                 break;
             case FUTURE:
                 ownerBookings.addAll(
-                        bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc(user,now));
+                        bookingRepository.findAllByItemOwnerAndStartAfterOrderByIdDesc(user,now, pageable));
                 break;
             case PAST:
-                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndEndBeforeOrderByIdDesc(user,now));
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndEndBeforeOrderByIdDesc(user,now, pageable));
                 break;
             case CURRENT:
                 ownerBookings.addAll(
-                bookingRepository.findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(user,now, now));
+                bookingRepository.findAllByItemOwnerAndEndAfterAndStartBeforeOrderByIdDesc(user,now, now, pageable));
                 break;
             case WAITING:
-                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,WAITING));
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,WAITING, pageable));
                 break;
             case REJECTED:
-                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED));
+                ownerBookings.addAll(bookingRepository.findAllByItemOwnerAndStatusEqualsOrderByIdDesc(user,REJECTED, pageable));
                 break;
         }
         return ownerBookings.stream().map(BookingMapper::toLongBookingDto).collect(Collectors.toList());

@@ -218,15 +218,6 @@ public class ItemServiceImpl implements ItemService {
         return commentDtoList;
     }
 
-    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
-        try {
-            itemDto.setLastBooking(getLastBooking(id, userId));
-            itemDto.setNextBooking(getNextBooking(id, userId));
-        } finally {
-            return itemDto;
-        }
-    }
-
     private LastBooking getLastBooking(Long itemId, Long userId) {
         List<Booking> itemBookings = itemRepository.getItemBookings(itemId);
         Booking booking = new Booking();

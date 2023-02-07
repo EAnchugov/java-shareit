@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.RequestDtoOut;
 import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.model.RequestAuthor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,12 +20,14 @@ public class RequestMapper {
         if (request.getItems() != null){
             itemsList = request.getItems();
         }
+        RequestAuthor requestAuthor = new RequestAuthor(request.getRequester().getId(), request.getRequester().getName());
         return RequestDtoOut.builder()
                 .description(request.getDescriptionRequest())
                 .id(request.getId())
-                .requestor(request.getRequester())
+//                .requestor(request.getRequester())
                 .created(request.getCreated())
                 .items(itemsList.stream().map(ItemMapper :: toItemDto).collect(Collectors.toList()))
+                .requestAuthor(requestAuthor)
                 .build();
     }
 }

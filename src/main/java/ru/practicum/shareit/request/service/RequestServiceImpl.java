@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.RequestDtoInput;
 import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.model.RequestAuthor;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -70,34 +73,24 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Request getById(Long userId, Long requestId) {
-        Optional<Request> optionalRequest = requestRepository.findById(requestId);
-        if (optionalRequest.isPresent()) {
-            return optionalRequest.get();
-        } else {
-            throw new IllegalArgumentException("нет реквеста с нужным ID");
-        }
+    public List<Request> getById(Long userId, Long requestId) {
+        userService.getById(userId);
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Нет такого реквеста"));
+        List<Request> requests = new ArrayList<>();
+        requests.add(request);
+        requests = addItemsToRequest(requests);
+        return requests;
     }
-
-    @Override
-    public List<Request> getAll1(Long userId, Integer from, Integer size) {
-        return null;
-    }
-
-//    @Override
-//    public List<Request> getAll1(Long userId, Integer from, Integer size) {
-//        userService.getById(userId);
-//        return getWithItems(requestRepository
-//                .getAllWithSize(userId, PageRequest.of(from, size, Sort.by(DESC, "created"))));
-//    }
 
     private List<Request> addItemsToRequest (List<Request> requests){
-
         for (Request r: requests) {
+ //           UserDto author = userService.getById(r.getRequester().getId());
+
             List<Item> items = itemService.getItemsByRequest(r.getId());
             if (r.getItems() == null){
-
                 r.setItems(new ArrayList<>());
+ //               r.setRequestAuthor(new RequestAuthor(author.getId(),author.getName()));
             }else {
                 r.setItems(items);
             }

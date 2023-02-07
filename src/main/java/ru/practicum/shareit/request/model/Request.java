@@ -38,4 +38,7 @@ public class Request {
 
     @Transient
     List<Item> items = new ArrayList<>();
+
+    @Transient
+    RequestAuthor requestAuthor;
 }

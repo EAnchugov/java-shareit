@@ -48,10 +48,12 @@ public class RequestController {
                     .stream().map(RequestMapper::requestToOutDto).collect(Collectors.toList());
     }
 
+    // TODO: 07.02.2023 убрать позор с листом
     @GetMapping("/{requestId}")
-    public RequestDtoOut getById(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public  RequestDtoOut getById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable("requestId") Long requestId) {
         requestService.getById(userId, requestId);
-        return RequestMapper.requestToOutDto(requestService.getById(userId, requestId));
+        return requestService.getById(userId, requestId).stream()
+                .map(RequestMapper::requestToOutDto).collect(Collectors.toList()).get(0);
     }
 }

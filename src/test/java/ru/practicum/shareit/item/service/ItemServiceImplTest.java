@@ -21,6 +21,7 @@ import ru.practicum.shareit.user.userDTO.UserDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -49,6 +50,7 @@ class ItemServiceImplTest {
 
     Item item;
     private UserDto userDto;
+    ItemDto updatedDto;
 
     @BeforeEach
         void setUp() {
@@ -73,6 +75,9 @@ class ItemServiceImplTest {
      item = ItemMapper.toItem(itemDto);
 
      userDto = UserDto.builder().id(1L).name("user name").email("user@email.org").build();
+
+        updatedDto = itemDto;
+        updatedDto.setName("updated name");
     }
 
 
@@ -88,10 +93,20 @@ class ItemServiceImplTest {
 
     @Test
     void update() {
+        when(ir.save(any())).thenReturn(item);
+        when(ir.findById(anyLong())).thenReturn(Optional.of(item));
+        when(ir.save(any())).thenReturn(item);
+        when(us.getById(anyLong())).thenReturn(userDto);
+        ItemDto id = itemService.update(updatedDto, 1L,1L);
+        Assertions.assertEquals(updatedDto.getName(), id.getName());
     }
 
     @Test
     void getByID() {
+        when(ir.findById(anyLong())).thenReturn(Optional.of(item));
+        ItemDto find = itemService.getByID(1L,1L);
+        Assertions.assertEquals(find.getName(), item.getName());
+
     }
 
     @Test

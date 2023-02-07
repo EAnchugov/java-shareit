@@ -2,7 +2,9 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -60,14 +62,17 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<Request> getAll(Long userId, Integer from, Integer size) {
                 if (from < 0 || size < 1) {
-            throw new IllegalArgumentException("Ошибка в getAll");
+            throw new IllegalArgumentException("Неверные from или size");
         }
-
+//        from = from / size;
         User user = UserMapper.toUser(userService.getById(userId));
         List<Request> notUserRequest = new ArrayList<>();
-        notUserRequest.addAll(requestRepository.findAllByRequesterNot(user)
-                .stream().limit(size).collect(Collectors.toList()));
-        notUserRequest.stream().filter(request -> request.getId() >= from && request.getId() <= from+size);
+//        Pageable page = PageRequest.of(from, size, Sort.by("creationDate").descending());
+        notUserRequest = requestRepository
+                .getAllWithSize(userId, PageRequest.of(from, size, Sort.by(DESC, "created")));
+//        notUserRequest.addAll(requestRepository.findAllByRequesterNot(user)
+//                .stream().limit(size).collect(Collectors.toList()));
+//        notUserRequest.stream().filter(request -> request.getId() >= from && request.getId() <= from+size);
         notUserRequest = addItemsToRequest(notUserRequest);
         return notUserRequest;
     }
@@ -96,6 +101,11 @@ public class RequestServiceImpl implements RequestService {
             }
         }
         return requests;
+    }
 
+    private List<Request> toPageDTO(Page<Request> items) {
+        return items.stream()
+                .map(i -> i)
+                .collect(Collectors.toList());
     }
 }

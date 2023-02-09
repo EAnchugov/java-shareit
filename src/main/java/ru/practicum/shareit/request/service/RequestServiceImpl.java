@@ -56,8 +56,8 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<Request> getAll(Long userId, Integer from, Integer size) {
         paginationCheck.paginationCheck(from, size);
-        User user = UserMapper.toUser(userService.getById(userId));
-        List<Request> requests = new ArrayList<>();
+        userService.getById(userId);
+        List<Request> requests;
         requests = requestRepository
                 .getAllWithSize(userId, PageRequest.of(from, size, Sort.by(DESC, "created")));
 

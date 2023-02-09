@@ -16,9 +16,6 @@ import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.userDTO.UserDto;
 
 import java.time.LocalDateTime;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Transactional
 @SpringBootTest(
@@ -35,7 +32,7 @@ class BookingServiceImplTest {
             LocalDateTime.of(2022,12,12,12,12),
             1L,1L, Status.WAITING);
     User user;
-    UserDto userDto = UserDto.builder().id(1l).name("user").email("user@mail.org").build();;
+    UserDto userDto = UserDto.builder().id(1L).name("user").email("user@mail.org").build();
     LongBookingDto longBookingDto;
     private ItemDto itemDto = ItemDto.builder()
             .name("itemDto").description("itemDto description").available(true).owner(new ItemDto.Owner(userDto.getId(), userDto.getName())).requestId(1L).build();

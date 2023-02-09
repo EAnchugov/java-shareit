@@ -13,7 +13,7 @@ public interface ItemService {
 
     ItemDto getByID(Long id, Long userId);
 
-    List<ItemDto> getAll(Long userId);
+    List<ItemDto> getAllByOwnerId(Long userId);
 
     List<ItemDto> search(String request);
 

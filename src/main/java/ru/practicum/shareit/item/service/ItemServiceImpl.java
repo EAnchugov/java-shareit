@@ -108,7 +108,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAll(Long userId) {
+    public List<ItemDto> getAllByOwnerId(Long userId) {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Item> items = itemRepository.findAllByOwner(user);
@@ -153,8 +153,6 @@ public class ItemServiceImpl implements ItemService {
             itemDto.setComments(addComment.stream().map(this::toCommentDto).collect(Collectors.toList()));
             itemDtoList.add(itemDto);
         }
-
-
         return itemDtoList;
     }
 
@@ -177,7 +175,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
         if (!commentCheck(itemId,userId)) {
-            throw new WrongParameterException("Вы не пользовались вещью (наверно)");
+            throw new WrongParameterException("Вы не пользовались вещью");
         }
         User author = UserMapper.toUser(userService.getById(userId));
         author.setId(userId);

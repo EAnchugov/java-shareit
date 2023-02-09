@@ -9,9 +9,6 @@ import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -38,7 +35,7 @@ public class ItemController {
 
     @GetMapping
     private List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getAll(userId);
+        return itemService.getAllByOwnerId(userId);
     }
 
     @GetMapping("/search")

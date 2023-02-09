@@ -66,14 +66,14 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<Request> getById(Long userId, Long requestId) {
+    public Request getById(Long userId, Long requestId) {
         userService.getById(userId);
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Нет такого реквеста"));
         List<Request> requests = new ArrayList<>();
         requests.add(request);
-        requests = addItemsToRequest(requests);
-        return requests;
+        addItemsToRequest(requests);
+        return requests.get(0);
     }
 
     private List<Request> addItemsToRequest(List<Request> requests) {

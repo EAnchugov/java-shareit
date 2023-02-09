@@ -39,7 +39,6 @@ class UserControllerTest {
     @BeforeEach
     void load() {
         userDto = UserDto.builder().id(1L).name(name).email(email).build();
-
     }
 
 

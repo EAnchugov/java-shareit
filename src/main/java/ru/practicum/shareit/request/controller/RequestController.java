@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.RequestMapper;
 import ru.practicum.shareit.request.dto.RequestDtoInput;
 import ru.practicum.shareit.request.dto.RequestDtoOut;
+import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.userDTO.Create;
 
@@ -48,12 +49,10 @@ public class RequestController {
                     .stream().map(RequestMapper::requestToOutDto).collect(Collectors.toList());
     }
 
-    // TODO: 07.02.2023 убрать позор с листом
     @GetMapping("/{requestId}")
     public  RequestDtoOut getById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @PathVariable("requestId") Long requestId) {
-        requestService.getById(userId, requestId);
-        return requestService.getById(userId, requestId).stream()
-                .map(RequestMapper::requestToOutDto).collect(Collectors.toList()).get(0);
+        Request request = requestService.getById(userId, requestId);
+        return RequestMapper.requestToOutDto(request);
     }
 }

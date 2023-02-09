@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Slf4j
 @Builder
+@AllArgsConstructor
 public class LongBookingDto {
     private Long id;
     private LocalDateTime start;

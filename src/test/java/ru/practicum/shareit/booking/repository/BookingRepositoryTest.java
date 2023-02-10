@@ -25,13 +25,8 @@ class BookingRepositoryTest {
     private List<Booking> check;
     private Item item;
 
-    @BeforeEach
-    void setUp() {
-    }
-
     @Test
     void findApprovedForItems() {
-//        List<Booking> findApprovedForItems(List< Item > items, Sort sort);
         item = Item.builder().id(1L).name("name").description("description").available(true).build();
         items.add(item);
         check = bookingRepository.findApprovedForItems(items, Sort.by(Sort.Direction.DESC, "start"));

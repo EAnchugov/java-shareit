@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.item.itemDto.ItemDto;
@@ -57,9 +58,12 @@ class BookingServiceImplTest {
         user2 = new User(2L,"name2", "mail2@mail.org");
         userDto2 = userService.create(UserMapper.toUserDTO(user2));
         itemDto = itemService.create(ItemDto.builder().name("Item").description("description").available(true).build(),userDto.getId());
-        bookingDto = BookingDto.builder().itemId(itemDto.getId()).start(START).end(END).build();
+        bookingDto = BookingDto.builder().itemId(itemDto.getId()).start(START).status(Status.APPROVED).bookerId(1L).end(END).build();
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         assertEquals(longBookingDto.getItem().getId(), itemDto.getId());
+        System.out.println(bookingDto.getStatus());
+        System.out.println(bookingDto.getBookerId());
+        System.out.println(bookingDto.getItemId());
     }
 
     @Test

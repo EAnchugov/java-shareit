@@ -109,8 +109,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void createComment() {
-        //Long itemId, Long userId, CommentDto commentDto
+        void createComment() {
         user = new User(1L,"name", "mail@mail.org");
         user2 = new User(2L,"name2", "mail2@mail.org");
         userDto = userService.create(UserMapper.toUserDTO(user));

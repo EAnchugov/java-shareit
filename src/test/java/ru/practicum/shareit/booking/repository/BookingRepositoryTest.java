@@ -30,9 +30,5 @@ class BookingRepositoryTest {
         items.add(item);
         check = bookingRepository.findApprovedForItems(items, Sort.by(Sort.Direction.DESC, "start"));
         Assertions.assertEquals(check.size(), 1);
-
-
-
-
     }
 }

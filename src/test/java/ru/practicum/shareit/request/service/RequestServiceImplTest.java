@@ -40,6 +40,11 @@ class RequestServiceImplTest {
 
     @BeforeEach
     void setUp() {
+
+    }
+
+    @Test
+    void create() {
         requestDtoInput = RequestDtoInput.builder().description("Запрос").build();
         requestDtoInput2 = requestDtoInput;
         user = new User(1L,"name", "mail@mail.org");
@@ -51,10 +56,6 @@ class RequestServiceImplTest {
         request = requestService.create(userDto.getId(), requestDtoInput);
         userDto2 = userService.create(UserMapper.toUserDTO(user2));
         requestService.create(userDto2.getId(), requestDtoInput);
-    }
-
-    @Test
-    void create() {
         assertEquals(request.getDescriptionRequest(),requestDtoInput.getDescription());
         assertThat(request.getCreated(), notNullValue());
         assertThat(request.getId(), notNullValue());
@@ -62,6 +63,17 @@ class RequestServiceImplTest {
 
     @Test
     void getAllUserRequest() {
+        requestDtoInput = RequestDtoInput.builder().description("Запрос").build();
+        requestDtoInput2 = requestDtoInput;
+        user = new User(1L,"name", "mail@mail.org");
+        user2 = new User(2L,"name2", "mail2@mail.org");
+        userDto = UserMapper.toUserDTO(user);
+        userDto2 = UserMapper.toUserDTO(user2);
+
+        userDto = userService.create(UserMapper.toUserDTO(user));
+        request = requestService.create(userDto.getId(), requestDtoInput);
+        userDto2 = userService.create(UserMapper.toUserDTO(user2));
+        requestService.create(userDto2.getId(), requestDtoInput);
 //        userDto = userService.create(UserMapper.toUserDTO(user));
 //        userDto2 = userService.create(UserMapper.toUserDTO(user2));
 //        requestService.create(userDto.getId(), requestDtoInput);
@@ -71,6 +83,17 @@ class RequestServiceImplTest {
 
     @Test
     void getAll() {
+        requestDtoInput = RequestDtoInput.builder().description("Запрос").build();
+        requestDtoInput2 = requestDtoInput;
+        user = new User(1L,"name", "mail@mail.org");
+        user2 = new User(2L,"name2", "mail2@mail.org");
+        userDto = UserMapper.toUserDTO(user);
+        userDto2 = UserMapper.toUserDTO(user2);
+
+        userDto = userService.create(UserMapper.toUserDTO(user));
+        request = requestService.create(userDto.getId(), requestDtoInput);
+        userDto2 = userService.create(UserMapper.toUserDTO(user2));
+        requestService.create(userDto2.getId(), requestDtoInput);
 //        userDto = userService.create(UserMapper.toUserDTO(user));
 //        userDto2 = userService.create(UserMapper.toUserDTO(user2));
 //        requestService.create(userDto.getId(), requestDtoInput);
@@ -81,10 +104,18 @@ class RequestServiceImplTest {
 
     @Test
     void getById() {
-//        userDto = userService.create(UserMapper.toUserDTO(user));
-//        userDto2 = userService.create(UserMapper.toUserDTO(user2));
-//        Request request = requestService.create(userDto.getId(), requestDtoInput);
-//        Request request = requestService.getById(userDto.getId(), 1L);
+        requestDtoInput = RequestDtoInput.builder().description("Запрос").build();
+        requestDtoInput2 = requestDtoInput;
+        user = new User(1L,"name", "mail@mail.org");
+        user2 = new User(2L,"name2", "mail2@mail.org");
+        userDto = UserMapper.toUserDTO(user);
+        userDto2 = UserMapper.toUserDTO(user2);
+
+        userDto = userService.create(UserMapper.toUserDTO(user));
+        request = requestService.create(userDto.getId(), requestDtoInput);
+        userDto2 = userService.create(UserMapper.toUserDTO(user2));
+        requestService.create(userDto2.getId(), requestDtoInput);
+
         assertEquals(7L, request.getId());
     }
 }

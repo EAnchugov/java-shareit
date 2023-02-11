@@ -19,14 +19,4 @@ public class RequestDtoInput {
     @NotNull
     private String description;
     private LocalDateTime created = LocalDateTime.now();
-
-    @Override
-    public String toString() {
-        return "RequestDtoInput{" +
-                "id=" + id +
-                ", requestorId=" + requestorId +
-                ", description='" + description + '\'' +
-                ", created=" + created +
-                '}';
-    }
 }

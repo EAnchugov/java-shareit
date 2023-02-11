@@ -15,10 +15,12 @@ import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,6 +42,7 @@ class BookingControllerTest {
     private ObjectMapper mapper;
     @MockBean
     private BookingService bookingService;
+    private List<LongBookingDto> longBookingDtoList;
 
     @BeforeEach
     void setUp() {
@@ -62,11 +65,29 @@ class BookingControllerTest {
     }
 
     @Test
-    void update() {
+    void update() throws Exception {
+        Mockito
+                .when(bookingService.update(any(), any(), any())).thenReturn(longBookingDto);
+
+        mockMvc.perform(patch(BOOKING_URL + "/1?approved=true")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .header(SHARER_USER_ID, 1)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.item.name", equalTo(NAME)));
     }
 
+
     @Test
-    void getByOwner() {
+    void getByOwner() throws Exception {
+        when(bookingService.getAllByOwner(anyLong(), any(), anyInt(), anyInt()))
+                .thenReturn(longBookingDtoList);
+
+        mockMvc.perform(get(BOOKING_URL + "?from=0&size=2")
+                        .header(SHARER_USER_ID, 1)
+                )
+                .andExpect(status().isOk());
     }
 
     @Test

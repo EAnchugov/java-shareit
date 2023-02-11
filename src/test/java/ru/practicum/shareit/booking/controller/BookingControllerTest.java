@@ -3,9 +3,11 @@ package ru.practicum.shareit.booking.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -14,47 +16,50 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import java.time.LocalDateTime;
 
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = BookingControllerTest.class)
+@WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
+    private static final Long ID_1 = 1L;
+    private static final LocalDateTime START = LocalDateTime.now().minusYears(1L);
+    private static final LocalDateTime FINISH = LocalDateTime.now().plusYears(1L);
+    private static final String NAME = "Name";
+    private static final LongBookingDto.Item ITEM = new LongBookingDto.Item(ID_1, NAME);
+    private static final LongBookingDto.Booker BOOKER = new LongBookingDto.Booker(ID_1,NAME);
+    private static final String BOOKING_URL = "/bookings";
+    private static final String SHARER_USER_ID = "X-Sharer-User-Id";
+    private static BookingDto bookingDto;
+    private static LongBookingDto longBookingDto;
     @Autowired
-    ObjectMapper mapper;
-
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper mapper;
     @MockBean
-    BookingService bookingService;
-    @Autowired
-    MockMvc mvc;
-    private LongBookingDto longBookingDto;
-    private LongBookingDto.Item item;
-    private LongBookingDto.Booker booker;
-    private LocalDateTime start = LocalDateTime.of(2023, 12, 8, 8, 0);
-    private LocalDateTime finish = LocalDateTime.of(2023, 12, 10, 8, 0);
-    private BookingDto bookingDto;
+    private BookingService bookingService;
 
     @BeforeEach
     void setUp() {
-        item = new LongBookingDto.Item(1L,"item");
-        booker = new LongBookingDto.Booker(1L,"booker");
-        longBookingDto = new LongBookingDto(1L,start,finish,
-        item,booker, Status.WAITING);
-        bookingDto = new BookingDto(1L,start,finish, 1L, 1L, Status.WAITING);
-
+        longBookingDto = new LongBookingDto(ID_1, START, FINISH, ITEM, BOOKER, Status.WAITING);
+        bookingDto = new BookingDto(ID_1,FINISH,FINISH.plusYears(1L),ID_1,ID_1,Status.WAITING);
     }
 
     @Test
     void create() throws Exception {
-        when(bookingService.create(any(), anyLong())).thenReturn(longBookingDto);
-//
-//        mvc.perform(MockMvcRequestBuilders.post("/bookings")
-//                .content(mapper.writeValueAsString(bookingDto))
-//                .header("X-Sharer-User-Id", booker.getId())
-//                .characterEncoding(StandardCharsets.UTF_8)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk());
-    }
+        Mockito
+                .when(bookingService.create(any(), any())).thenReturn(longBookingDto);
 
+        mockMvc.perform(post(BOOKING_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .header(SHARER_USER_ID, 1)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.item.name", equalTo(NAME)));
+    }
 
     @Test
     void update() {

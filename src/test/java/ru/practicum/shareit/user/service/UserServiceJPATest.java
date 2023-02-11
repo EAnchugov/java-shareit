@@ -55,7 +55,6 @@ class UserServiceJPATest {
         UserDto testUserDto = userServiceJPA.create(UserMapper.toUserDTO(USER_1));
         assertEquals(USER_ID_1, testUserDto.getId());
         verify(userRepository).save(any(User.class));
-
     }
 
     @Test

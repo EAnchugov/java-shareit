@@ -59,6 +59,7 @@ class BookingServiceImplTest {
         userDto2 = userService.create(UserMapper.toUserDTO(user2));
         itemDto = itemService.create(ItemDto.builder().name("Item").description("description").available(true).build(),userDto.getId());
         bookingDto = BookingDto.builder().itemId(itemDto.getId()).start(START).status(Status.APPROVED).bookerId(1L).end(END).build();
+        bookingDto.setStart(START);
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         assertEquals(longBookingDto.getItem().getId(), itemDto.getId());
         System.out.println(bookingDto.getStatus());
@@ -71,6 +72,7 @@ class BookingServiceImplTest {
         // TODO: 10.02.2023 юзер не владеет вешью
         // TODO: 10.02.2023 статусы
         user = new User(1L,"name", "mail@mail.org");
+        User errorUser = User.builder().name("name").email("mail@mail.org").build();
         userDto = userService.create(UserMapper.toUserDTO(user));
         user2 = new User(2L,"name2", "mail2@mail.org");
         userDto2 = userService.create(UserMapper.toUserDTO(user2));

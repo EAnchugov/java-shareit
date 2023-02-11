@@ -58,9 +58,6 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getStart().isBefore(booking.getEnd())) {
             throw new WrongParameterException("Нельзя сдавать в прошлом");
         }
-        if (booking.getStart().isAfter(booking.getEnd())) {
-            throw new WrongParameterException("Нельзя сдавать раньше чем получить");
-        }
         booking.setBooker(user);
         booking.setItem(item);
         booking.setStatus(WAITING);

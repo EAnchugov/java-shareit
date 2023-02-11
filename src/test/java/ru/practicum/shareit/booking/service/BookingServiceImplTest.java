@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
+import ru.practicum.shareit.exceptions.ItemNotAvailableException;
+import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.UserMapper;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @Transactional
@@ -45,11 +48,7 @@ class BookingServiceImplTest {
     private LongBookingDto longBookingDto2;
     private List<LongBookingDto> getAllByOwnerCheck;
     private LongBookingDto getBookingDtoByIdCheck;
-
-    @BeforeEach
-    void setup(){
-//        userDto = UserDto.builder().id(1l).name("user").email("user@mail.org").build();
-    }
+    private ItemDto itemDto2;
 
     @Test
     void create() {
@@ -62,17 +61,24 @@ class BookingServiceImplTest {
         bookingDto.setStart(START);
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         assertEquals(longBookingDto.getItem().getId(), itemDto.getId());
-        System.out.println(bookingDto.getStatus());
-        System.out.println(bookingDto.getBookerId());
-        System.out.println(bookingDto.getItemId());
+
+        WrongParameterException exception1 = assertThrows(WrongParameterException.class,() ->
+                bookingService.create(
+                        BookingDto.builder().itemId(itemDto.getId()).start(START).end(START.minusYears(1L)).status(Status.APPROVED).bookerId(1L).build(),
+                        userDto2.getId()));
+        assertEquals(exception1.getMessage(),"Нельзя сдавать в прошлом");
+
+
+        NotFoundException exception2 = assertThrows(NotFoundException.class,() ->
+                bookingService.create(
+                        BookingDto.builder().itemId(itemDto.getOwner().getId()).start(START).end(START.minusYears(1L)).status(Status.APPROVED).bookerId(1L).build(),
+                        itemDto.getOwner().getId()));
+        assertEquals(exception2.getMessage(),"Нельзя бронировать у себя");
     }
 
     @Test
     void update() {
-        // TODO: 10.02.2023 юзер не владеет вешью
-        // TODO: 10.02.2023 статусы
         user = new User(1L,"name", "mail@mail.org");
-        User errorUser = User.builder().name("name").email("mail@mail.org").build();
         userDto = userService.create(UserMapper.toUserDTO(user));
         user2 = new User(2L,"name2", "mail2@mail.org");
         userDto2 = userService.create(UserMapper.toUserDTO(user2));
@@ -81,6 +87,9 @@ class BookingServiceImplTest {
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         longBookingDto2 = bookingService.update(longBookingDto.getId(), itemDto.getOwner().getId(), true);
         assertEquals(longBookingDto2.getItem().getId(), longBookingDto.getItem().getId());
+        ItemNotAvailableException ex = assertThrows(ItemNotAvailableException.class, () ->
+                bookingService.update(longBookingDto.getId(), itemDto.getOwner().getId(), true));
+        assertEquals(ex.getMessage(), "Статус != WAITING");
     }
 
     @Test
@@ -95,6 +104,12 @@ class BookingServiceImplTest {
         longBookingDto2 = bookingService.update(longBookingDto.getId(), itemDto.getOwner().getId(), true);
         getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.ALL), 0,1);
         assertEquals(getAllByOwnerCheck.size(), 1);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,() ->
+                bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.ALL), -1,1));
+        assertEquals(ex.getMessage(),"From меньше 0");
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,() ->
+                bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.ALL), 1,-1));
+        assertEquals(exc.getMessage(),"Size меньше 1");
     }
 
     @Test

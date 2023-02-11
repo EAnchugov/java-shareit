@@ -150,7 +150,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public LongBookingDto getBookingDtoById(Long bookingId, Long userId) {
-
         Booking booking = getBookingById(bookingId);
         if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner().getId())) {
             throw new NotFoundException("Не автор бронирования или владелец вещи");

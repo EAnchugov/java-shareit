@@ -110,6 +110,18 @@ class BookingServiceImplTest {
         IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,() ->
                 bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.ALL), 1,-1));
         assertEquals(exc.getMessage(),"Size меньше 1");
+        getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.ALL), 0,1);
+        assertEquals(getAllByOwnerCheck.size(), 1);
+        getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.FUTURE), 0,1);
+        assertEquals(getAllByOwnerCheck.size(), 0);
+        getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.PAST), 0,1);
+        assertEquals(getAllByOwnerCheck.size(), 0);
+        getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.CURRENT), 0,1);
+        assertEquals(getAllByOwnerCheck.size(), 1);
+        getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.WAITING), 0,1);
+        assertEquals(getAllByOwnerCheck.size(), 0);
+        getAllByOwnerCheck = bookingService.getAllByOwner(itemDto.getOwner().getId(), String.valueOf(BookingState.REJECTED), 0,1);
+        assertEquals(getAllByOwnerCheck.size(), 0);
     }
 
     @Test
@@ -125,6 +137,17 @@ class BookingServiceImplTest {
         List<LongBookingDto> getAllByUserCheck = bookingService.getAllByUser(userDto2.getId(), String.valueOf(BookingState.ALL), 0, 1);
         assertEquals(getAllByUserCheck.size(),1);
         assertEquals(getAllByUserCheck.get(0).getBooker().getId(), userDto2.getId());
+        List<LongBookingDto> getAllByUserCheck2 = bookingService.getAllByUser(userDto2.getId(), String.valueOf(BookingState.CURRENT), 0, 1);
+        assertEquals(getAllByUserCheck2.size(), 1);
+        List<LongBookingDto> getAllByUserCheck3 = bookingService.getAllByUser(userDto2.getId(), String.valueOf(BookingState.PAST), 0, 1);
+        assertEquals(getAllByUserCheck3.size(), 0);
+        List<LongBookingDto> getAllByUserCheck4 = bookingService.getAllByUser(userDto2.getId(), String.valueOf(BookingState.WAITING), 0, 1);
+        assertEquals(getAllByUserCheck4.size(), 0);
+        List<LongBookingDto> getAllByUserCheck5 = bookingService.getAllByUser(userDto2.getId(), String.valueOf(BookingState.REJECTED), 0, 1);
+        assertEquals(getAllByUserCheck5.size(), 0);
+        List<LongBookingDto> getAllByUserCheck6 = bookingService.getAllByUser(userDto2.getId(), String.valueOf(BookingState.FUTURE), 0, 1);
+        assertEquals(getAllByUserCheck6.size(), 0);
+
     }
 
     @Test
@@ -138,6 +161,10 @@ class BookingServiceImplTest {
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         getBookingDtoByIdCheck = bookingService.getBookingDtoById(longBookingDto.getId(), userDto.getId());
         assertEquals(getBookingDtoByIdCheck.getId(), longBookingDto.getId());
+        NotFoundException exc = assertThrows(NotFoundException.class,() ->
+                bookingService.getBookingDtoById(longBookingDto.getId(), 99L));
+        assertEquals(exc.getMessage(),"Не автор бронирования или владелец вещи");
+
 
     }
 }

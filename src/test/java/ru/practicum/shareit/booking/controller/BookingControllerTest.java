@@ -91,10 +91,27 @@ class BookingControllerTest {
     }
 
     @Test
-    void getAllByUser() {
+    void getAllByUser() throws Exception {
+        when(bookingService.getAllByUser(any(),any(),any(),any())).thenReturn(longBookingDtoList);
+        mockMvc.perform(get(BOOKING_URL + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(SHARER_USER_ID, 1)
+                )
+                .andExpect(status().isOk());
+
+
     }
 
     @Test
-    void getById() {
+    void getById() throws Exception {
+        when(bookingService.getBookingDtoById(anyLong(), anyLong()))
+                .thenReturn(longBookingDto);
+
+        mockMvc.perform(get(BOOKING_URL + "/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(SHARER_USER_ID, 1)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", equalTo(1)));
     }
 }

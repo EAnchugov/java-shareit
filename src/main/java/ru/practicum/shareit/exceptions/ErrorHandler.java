@@ -22,7 +22,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ErrorResponse handle(final WrongParameterException e) {
-        log.error("Ошибка WrongParameterException" + e.getMessage());
+        log.error("Ошибка  " + e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );

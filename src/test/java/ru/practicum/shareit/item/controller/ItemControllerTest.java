@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,6 +50,7 @@ class ItemControllerTest {
             .created(NOW)
             .build();
     List<CommentDto> comments = new ArrayList<>();
+    List<ItemDto> itemDtoList = new ArrayList<>();
 
 
     @Autowired
@@ -61,6 +63,7 @@ class ItemControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private UserDto userDto;
+    private String search = "search";
 
 
     @BeforeEach
@@ -95,7 +98,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDto.getName())))
                 .andExpect(jsonPath("$.description", is(itemDto.getDescription())))
-//                .andExpect(jsonPath("$.requestId", is(itemDto.getRequest())))
                 .andExpect(jsonPath("$.available", is(itemDto.getAvailable())));
     }
 
@@ -116,7 +118,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemDto.getName())))
                 .andExpect(jsonPath("$.description", is(itemDto.getDescription())))
-//               .andExpect(jsonPath("$.requestId", is(itemDto.getRequest())))
+//                .andExpect(jsonPath("$.requestId", is(itemDto)))
                 .andExpect(jsonPath("$.available", is(itemDto.getAvailable())));
     }
 
@@ -125,6 +127,7 @@ class ItemControllerTest {
         Mockito
                 .when(itemService.createComment(ITEM_ID,ID,COMMENT_DTO))
                 .thenReturn(COMMENT_DTO);
+
         mockMvc.perform(post("/items/1/comment")
                         .content(mapper.writeValueAsString(COMMENT_DTO))
                         .header("X-Sharer-User-Id", OWNER.getId())
@@ -136,5 +139,58 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.text", is(COMMENT_DTO.getText())))
                 .andExpect(jsonPath("$.authorName", is(COMMENT_DTO.getAuthorName())))
                 .andExpect(jsonPath("$.created", is(COMMENT_DTO.getCreated().toString())));
+    }
+
+    @Test
+    void testCreate() throws Exception {
+        Mockito
+                .when(itemService.getAllByOwnerId(anyLong())).thenReturn(itemDtoList);
+
+        mockMvc.perform(get("/items/1")
+                        .header("X-Sharer-User-Id", OWNER.getId())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetAll() throws Exception {
+        Mockito
+                .when(itemService.getAllByOwnerId(anyLong())).thenReturn(itemDtoList);
+
+        mockMvc.perform(get("/items")
+                        .header("X-Sharer-User-Id", OWNER.getId())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testSearch() throws Exception {
+        itemDtoList.add(itemDto);
+        Mockito.when(itemService.search(any())).thenReturn(itemDtoList);
+        mockMvc.perform(get("/items/search?text=search")
+                        .header("X-Sharer-User-Id", OWNER.getId())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testCreateComment() throws Exception {
+
+        Mockito
+                .when(itemService.createComment(anyLong(), anyLong(), any())).thenReturn(COMMENT_DTO);
+        mockMvc.perform(post("/items/1/comment")
+                        .content(mapper.writeValueAsString(COMMENT_DTO))
+                        .header("X-Sharer-User-Id", OWNER.getId())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
     }
 }

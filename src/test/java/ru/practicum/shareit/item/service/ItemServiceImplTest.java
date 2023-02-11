@@ -120,6 +120,7 @@ class ItemServiceImplTest {
         bookingDto = new BookingDto(1L, LocalDateTime.now().minusYears(1L),
                 LocalDateTime.now().plusYears(1L),itemDto.getId(),userDto2.getId(), Status.APPROVED);
         bookingService.create(bookingDto, userDto2.getId());
+        assertEquals(commentDto.getText(), "comment");
 
         Throwable thrown = assertThrows(WrongParameterException.class, () -> {
             itemService.createComment(user.getId(),
@@ -127,6 +128,7 @@ class ItemServiceImplTest {
         });
         assertThat(thrown.getMessage(),
                 equalTo("Вы не пользовались вещью"));
+
     }
 
     @Test
@@ -141,5 +143,6 @@ class ItemServiceImplTest {
                 .description("description").available(true).build(),userDto.getId());
         List<Item> request = itemService.getItemsByRequest(1L);
         assertEquals(request.get(0).getId(), itemDto.getId());
+
     }
 }

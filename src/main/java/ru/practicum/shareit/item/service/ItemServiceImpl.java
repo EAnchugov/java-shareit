@@ -95,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
         if (optionalItem.isPresent()) {
             item = optionalItem.get();
         } else {
-            throw new NotFoundException("Нет вещи с id =" + id);
+            throw new NotFoundException("Нет вещи с id = " + id);
         }
         ItemDto itemDto = ItemMapper.toItemDto(item);
         itemDto.setComments(getCommentsByItem(item));

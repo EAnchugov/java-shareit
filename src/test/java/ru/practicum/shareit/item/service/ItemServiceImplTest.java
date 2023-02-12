@@ -108,6 +108,12 @@ class ItemServiceImplTest {
                 .description("description").available(true).build(),userDto.getId());
         ItemDto check = itemService.getByID(itemDto.getId(), userDto.getId());
         assertEquals(check.getOwner().getId(), userDto.getId());
+
+        Throwable thrown = assertThrows(NotFoundException.class, () -> {
+            itemService.getByID(99L, 1L);
+        });
+        assertEquals(thrown.getMessage(),"Нет вещи с id = 99");
+
     }
 
     @Test

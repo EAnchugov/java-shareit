@@ -200,7 +200,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean commentCheck(Long itemId, Long authorId) {
-        List<Booking> commentBookings = itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
+        List<Booking> commentBookings =
+                itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
         if (commentBookings.size() == 0) {
             return false;
         }else {

@@ -174,16 +174,19 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
+        LocalDateTime now = LocalDateTime.now();
+        Item item;
+        item = itemRepository.getById(itemId);
+        User author = UserMapper.toUser(userService.getById(userId));
+        Comment comment = new Comment();
+        comment.setText(commentDto.getText());
+        comment.setItem(item);
+        comment.setAuthor(author);
+        comment.setCreated(now);
         if (!commentCheck(itemId,userId)) {
             throw new WrongParameterException("Вы не пользовались вещью");
         }
-        return toCommentDto(commentRepository.save(
-                Comment.builder()
-                .text(commentDto.getText())
-                .item(itemRepository.getById(itemId))
-                .author(UserMapper.toUser(userService.getById(userId)))
-                .created(LocalDateTime.now())
-                .build()));
+        return toCommentDto(commentRepository.save(comment));
     }
 
     @Override
@@ -200,7 +203,7 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> commentBookings = itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
         if (commentBookings.size() == 0) {
             return false;
-        } else {
+        }else {
             return true;
         }
     }
@@ -209,9 +212,7 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments = new ArrayList<>();
         comments.addAll(commentRepository.findAllByItem(item));
         List<CommentDto> commentDtoList = new ArrayList<>();
-        for (Comment c: comments) {
-            commentDtoList.add(toCommentDto(c));
-        }
+        comments.stream().forEach(comment -> commentDtoList.add(toCommentDto(comment)));
         return commentDtoList;
     }
 

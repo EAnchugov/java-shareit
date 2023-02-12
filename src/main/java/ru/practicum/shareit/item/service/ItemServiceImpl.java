@@ -137,8 +137,9 @@ public class ItemServiceImpl implements ItemService {
 
 
             Booking lastBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
-                    .filter(b -> ((b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
-                        || (b.getStart().isEqual(now) || b.getStart().isBefore(now))))
+                    .filter(b -> (
+                            (b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
+                                    || (b.getStart().isEqual(now) || b.getStart().isBefore(now))))
                 .findFirst()
                 .orElse(null);
             if (lastBooking != null) {

@@ -51,7 +51,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         Item save = itemRepository.save(item);
-        log.info("ItemsSave {} {}",save.getRequest(),save.toString());
         return ItemMapper.toItemDto(save);
     }
 
@@ -204,7 +203,7 @@ public class ItemServiceImpl implements ItemService {
                 itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
         if (commentBookings.size() == 0) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }

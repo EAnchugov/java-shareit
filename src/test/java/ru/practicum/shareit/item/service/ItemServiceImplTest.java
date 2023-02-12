@@ -65,7 +65,10 @@ class ItemServiceImplTest {
         ItemDto check = itemService.create(itemDto, itemDto.getOwner().getId());
         assertThat(check.getId(),notNullValue());
         assertEquals(check.getName(),itemDto.getName());
-        System.out.println(itemDto.getComments());
+        Throwable thrown = assertThrows(NotFoundException.class, () -> {
+            itemService.create(itemDto, 99L);
+        });
+        assertEquals(thrown.getMessage(),"Юзер с ID 99 не найден Нет пользователя с id =99");
 
     }
 
@@ -95,9 +98,6 @@ class ItemServiceImplTest {
 
         assertThat(thrown.getMessage(),
                 equalTo("Вещь не найдена"));
-
-
-
     }
 
     @Test

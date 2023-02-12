@@ -150,7 +150,6 @@ public class ItemServiceImpl implements ItemService {
         return itemDtoList;
     }
 
-
     @Override
     public List<ItemDto> search(String request) {
         ArrayList<ItemDto> items = new ArrayList<>();

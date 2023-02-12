@@ -63,7 +63,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository. findById(itemId).orElseThrow(() ->
                 new WrongParameterException("Вещь не найдена"));
         Long itemOwnerId = item.getOwner().getId();
-
             if (!(itemOwnerId.equals(owner.getId()))) {
                 throw new NotFoundException("Изменять может только владелец");
             }
@@ -117,12 +116,10 @@ public class ItemServiceImpl implements ItemService {
         System.out.println(approvedBookings.toString());
         LocalDateTime now = LocalDateTime.now();
         List<ItemDto> itemDtoList = new ArrayList<>();
-
         List<Comment> comments =
                 commentRepository.findAllByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
                         .stream()
                         .collect(Collectors.toUnmodifiableList());groupingBy(Comment::getItem, toList());
-
         for (Item i : items) {
             ItemDto itemDto = ItemMapper.toItemDto(i);
             Booking nextBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
@@ -134,8 +131,6 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(
                         new NextBooking(nextBooking.getId(), nextBooking.getBooker().getId()));
             }
-
-
             Booking lastBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
                     .filter(b -> (
                             (b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
@@ -144,7 +139,6 @@ public class ItemServiceImpl implements ItemService {
                 .orElse(null);
             if (lastBooking != null) {
                 itemDto.setLastBooking(new LastBooking(lastBooking.getId(), lastBooking.getBooker().getId()));
-
             }
 
             List<Comment> addComment = comments.stream()

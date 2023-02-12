@@ -10,6 +10,9 @@ class RequestAuthorTest {
     void all() {
         RequestAuthor requestAuthor = RequestAuthor.builder().build();
         assertEquals(requestAuthor, new RequestAuthor(null,null));
+        Request request = new Request();
+        request.setRequestAuthor(requestAuthor);
+        assertEquals(request.getRequestAuthor(), requestAuthor);
 
     }
 }

@@ -114,8 +114,7 @@ class RequestServiceImplTest {
         userDto = userService.create(UserMapper.toUserDTO(user));
         request = requestService.create(userDto.getId(), requestDtoInput);
         userDto2 = userService.create(UserMapper.toUserDTO(user2));
-        requestService.create(userDto2.getId(), requestDtoInput);
-
-        assertEquals(7L, request.getId());
+        Request check = requestService.getById(userDto.getId(), request.getId());
+        assertEquals(check.getId(), check.getRequester().getId());
     }
 }

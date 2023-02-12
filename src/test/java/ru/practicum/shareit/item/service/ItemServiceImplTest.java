@@ -10,8 +10,11 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.LongBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.comment.Dto.CommentDto;
+import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
+import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.RequestDtoInput;
 import ru.practicum.shareit.request.service.RequestService;
@@ -21,6 +24,7 @@ import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.userDTO.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,29 +52,53 @@ class ItemServiceImplTest {
     private User user2;
     private UserDto userDto2;
     private RequestDtoInput input;
+    List<CommentDto> commentDtoList = new ArrayList<>();
 
 
     @Test
     void create() {
         user = new User(1L,"name", "mail@mail.org");
         userDto = userService.create(UserMapper.toUserDTO(user));
-        itemDto = itemService.create(ItemDto.builder().name("Item").description("description").available(true).build(),userDto.getId());
+        commentDtoList.add(commentDto);
+        itemDto = itemService.create(ItemDto.builder()
+                .name("Item").description("description").available(true).build(),
+                userDto.getId());
         ItemDto check = itemService.create(itemDto, itemDto.getOwner().getId());
         assertThat(check.getId(),notNullValue());
         assertEquals(check.getName(),itemDto.getName());
-        itemDto = check;
+        System.out.println(itemDto.getComments());
+
     }
 
     @Test
     void update() {
         user = new User(1L,"name", "mail@mail.org");
+        user2 = new User(1L,"name2", "mail2@mail.org");
         userDto = userService.create(UserMapper.toUserDTO(user));
+        userDto2 = userService.create(UserMapper.toUserDTO(user2));
         itemDto = itemService.create(ItemDto.builder().name("Item")
                 .description("description").available(true).build(),userDto.getId());
         itemDto = itemService.create(itemDto, itemDto.getOwner().getId());
         itemDto.setName("updated name");
         ItemDto check = itemService.update(itemDto,itemDto.getOwner().getId(),itemDto.getId());
         assertEquals(check.getName(), itemDto.getName());
+        assertEquals(check.getRequestId(), null);
+
+        Throwable thrown = assertThrows(NotFoundException.class, () -> {
+            itemService.update(itemDto,userDto2.getId(),itemDto.getId());
+        });
+        assertThat(thrown.getMessage(),
+                equalTo("Изменять может только владелец"));
+
+        thrown = assertThrows(WrongParameterException.class, () -> {
+            itemService.update(itemDto,userDto2.getId(),55L);
+        });
+
+        assertThat(thrown.getMessage(),
+                equalTo("Вещь не найдена"));
+
+
+
     }
 
     @Test
@@ -144,5 +172,15 @@ class ItemServiceImplTest {
         List<Item> request = itemService.getItemsByRequest(1L);
         assertEquals(request.get(0).getId(), itemDto.getId());
 
+    }
+    @Test
+    void toCommentDto(){
+        Comment comment = new Comment();
+        comment.setId(1L);
+        comment.setCreated(LocalDateTime.now());
+        comment.setAuthor(new User(1l,"name","mail@mail.org"));
+        comment.setText("txt");
+        CommentDto commentDto1 =itemService.toCommentDto(comment);
+        assertEquals(commentDto1.getId(), 1L);
     }
 }

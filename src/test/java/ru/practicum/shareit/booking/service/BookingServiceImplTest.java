@@ -61,7 +61,6 @@ class BookingServiceImplTest {
         bookingDto.setStart(START);
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         assertEquals(longBookingDto.getItem().getId(), itemDto.getId());
-
         WrongParameterException exception1 = assertThrows(WrongParameterException.class,() ->
                 bookingService.create(
                         BookingDto.builder().itemId(itemDto.getId()).start(START).end(START.minusYears(1L)).status(Status.APPROVED).bookerId(1L).build(),
@@ -87,9 +86,21 @@ class BookingServiceImplTest {
         longBookingDto = bookingService.create(bookingDto, userDto2.getId());
         longBookingDto2 = bookingService.update(longBookingDto.getId(), itemDto.getOwner().getId(), true);
         assertEquals(longBookingDto2.getItem().getId(), longBookingDto.getItem().getId());
+
+        Throwable throwable2 = assertThrows(Throwable.class, () ->
+                bookingService.update(longBookingDto2.getId(), userDto2.getId(), true));
+        assertEquals(throwable2.getMessage(), "User не владеет вещью");
+
         ItemNotAvailableException ex = assertThrows(ItemNotAvailableException.class, () ->
                 bookingService.update(longBookingDto.getId(), itemDto.getOwner().getId(), true));
         assertEquals(ex.getMessage(), "Статус != WAITING");
+
+        ItemDto itemDto3 = itemService.create(ItemDto.builder().name("Item").description("description").available(false).build(), userDto.getId());
+        bookingDto = BookingDto.builder().itemId(itemDto3.getId()).start(START).end(END).build();
+        //System.out.println(itemDto3);
+        Throwable throwable = assertThrows(Throwable.class, () ->
+                bookingService.create(bookingDto, itemDto.getOwner().getId()));
+        assertEquals(throwable.getMessage(), "Вещь недоступна");
     }
 
     @Test

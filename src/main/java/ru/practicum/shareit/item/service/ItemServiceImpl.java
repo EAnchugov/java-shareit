@@ -188,7 +188,8 @@ public class ItemServiceImpl implements ItemService {
         return toCommentDto(commentRepository.save(comment));
     }
 
-    private CommentDto toCommentDto(Comment comment) {
+    @Override
+    public CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
                 .created(comment.getCreated())

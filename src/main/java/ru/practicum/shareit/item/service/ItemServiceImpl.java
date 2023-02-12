@@ -177,15 +177,13 @@ public class ItemServiceImpl implements ItemService {
         if (!commentCheck(itemId,userId)) {
             throw new WrongParameterException("Вы не пользовались вещью");
         }
-        User author = UserMapper.toUser(userService.getById(userId));
-        author.setId(userId);
-        Comment comment = Comment.builder()
+        return toCommentDto(commentRepository.save(
+                Comment.builder()
                 .text(commentDto.getText())
                 .item(itemRepository.getById(itemId))
-                .author(author)
+                .author(UserMapper.toUser(userService.getById(userId)))
                 .created(LocalDateTime.now())
-                .build();
-        return toCommentDto(commentRepository.save(comment));
+                .build()));
     }
 
     @Override

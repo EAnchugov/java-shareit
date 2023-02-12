@@ -14,7 +14,6 @@ import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.WrongParameterException;
 import ru.practicum.shareit.item.itemDto.ItemDto;
-import ru.practicum.shareit.item.itemDto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.RequestDtoInput;
 import ru.practicum.shareit.request.service.RequestService;
@@ -173,14 +172,15 @@ class ItemServiceImplTest {
         assertEquals(request.get(0).getId(), itemDto.getId());
 
     }
+
     @Test
-    void toCommentDto(){
+    void toCommentDto() {
         Comment comment = new Comment();
         comment.setId(1L);
         comment.setCreated(LocalDateTime.now());
-        comment.setAuthor(new User(1l,"name","mail@mail.org"));
+        comment.setAuthor(new User(1L,"name","mail@mail.org"));
         comment.setText("txt");
-        CommentDto commentDto1 =itemService.toCommentDto(comment);
+        CommentDto commentDto1 = itemService.toCommentDto(comment);
         assertEquals(commentDto1.getId(), 1L);
     }
 }

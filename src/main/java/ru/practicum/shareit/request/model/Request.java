@@ -34,8 +34,8 @@ public class Request {
     private LocalDateTime created;
 
     @Transient
-    List<Item> items = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
     @Transient
-    RequestAuthor requestAuthor;
+    private RequestAuthor requestAuthor;
 }

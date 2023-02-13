@@ -8,6 +8,6 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class RequestAuthor {
-    Long id;
-    String name;
+    private Long id;
+    private String name;
  }

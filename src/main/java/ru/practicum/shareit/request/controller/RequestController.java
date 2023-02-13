@@ -14,9 +14,6 @@ import ru.practicum.shareit.user.userDTO.Create;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor

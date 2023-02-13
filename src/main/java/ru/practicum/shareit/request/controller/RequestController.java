@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
-@Slf4j
 public class RequestController {
     private final RequestService requestService;
 
@@ -26,7 +25,6 @@ public class RequestController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestBody @Validated(Create.class) RequestDtoInput input
             ) {
-        log.info("создание реквеста: UserID " + userId + " input " + input.toString());
         return RequestMapper.requestToOutDto(requestService.create(userId,input));
 
     }

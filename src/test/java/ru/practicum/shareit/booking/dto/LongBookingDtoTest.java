@@ -8,10 +8,6 @@ class LongBookingDtoTest {
     LongBookingDto longBookingDto = LongBookingDto.builder().build();
 
     @Test
-    void getId() {
-    }
-
-    @Test
     void getStart() {
         assertEquals(longBookingDto.getStart(), null);
     }
@@ -22,20 +18,8 @@ class LongBookingDtoTest {
     }
 
     @Test
-    void getItem() {
-    }
-
-    @Test
-    void getBooker() {
-    }
-
-    @Test
     void getStatus() {
         assertEquals(longBookingDto.getStatus(), null);
-    }
-
-    @Test
-    void setId() {
     }
 
     @Test
@@ -64,9 +48,5 @@ class LongBookingDtoTest {
     @Test
     void setStatus() {
         longBookingDto.setStatus(null);
-    }
-
-    @Test
-    void builder() {
     }
 }

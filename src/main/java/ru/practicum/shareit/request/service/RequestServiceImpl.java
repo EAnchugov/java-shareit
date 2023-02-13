@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserService userService;

@@ -10,14 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.CONFLICT)
-//    private ErrorResponse handle(final DuplicateEmailException e) {
-//        log.error("Ошибка DuplicateEmailException" + e.getMessage());
-//        return new ErrorResponse(
-//                e.getMessage()
-//        );
-//    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)

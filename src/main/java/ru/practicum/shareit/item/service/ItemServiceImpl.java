@@ -50,7 +50,8 @@ public class ItemServiceImpl implements ItemService {
         itemDto.setOwner(new ItemDto.Owner(ownerId, owner.getName()));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        Item save = itemRepository.save(item);
+        return ItemMapper.toItemDto(save);
     }
 
     @Override
@@ -62,7 +63,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository. findById(itemId).orElseThrow(() ->
                 new WrongParameterException("Вещь не найдена"));
         Long itemOwnerId = item.getOwner().getId();
-
             if (!(itemOwnerId.equals(owner.getId()))) {
                 throw new NotFoundException("Изменять может только владелец");
             }
@@ -78,8 +78,8 @@ public class ItemServiceImpl implements ItemService {
             if (dto.getOwner() != null) {
                 item.setOwner(owner);
             }
-            if (dto.getRequest() != null) {
-                item.setRequest(dto.getRequest());
+            if (dto.getRequestId() != null) {
+                item.setRequest(dto.getRequestId());
             }
         item.setId(itemId);
         item.setOwner(owner);
@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
         if (optionalItem.isPresent()) {
             item = optionalItem.get();
         } else {
-            throw new NotFoundException("Нет вещи с id =" + id);
+            throw new NotFoundException("Нет вещи с id = " + id);
         }
         ItemDto itemDto = ItemMapper.toItemDto(item);
         itemDto.setComments(getCommentsByItem(item));
@@ -106,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAll(Long userId) {
+    public List<ItemDto> getAllByOwnerId(Long userId) {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Item> items = itemRepository.findAllByOwner(user);
@@ -116,12 +116,10 @@ public class ItemServiceImpl implements ItemService {
         System.out.println(approvedBookings.toString());
         LocalDateTime now = LocalDateTime.now();
         List<ItemDto> itemDtoList = new ArrayList<>();
-
         List<Comment> comments =
                 commentRepository.findAllByItemIn(items, Sort.by(Sort.Direction.DESC, "created"))
                         .stream()
                         .collect(Collectors.toUnmodifiableList());groupingBy(Comment::getItem, toList());
-
         for (Item i : items) {
             ItemDto itemDto = ItemMapper.toItemDto(i);
             Booking nextBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
@@ -133,16 +131,14 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(
                         new NextBooking(nextBooking.getId(), nextBooking.getBooker().getId()));
             }
-
-
             Booking lastBooking = approvedBookings.getOrDefault(i, Collections.emptyList()).stream()
-                    .filter(b -> ((b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
-                        || (b.getStart().isEqual(now) || b.getStart().isBefore(now))))
+                    .filter(b -> (
+                            (b.getEnd().isEqual(now) || b.getEnd().isBefore(now))
+                                    || (b.getStart().isEqual(now) || b.getStart().isBefore(now))))
                 .findFirst()
                 .orElse(null);
             if (lastBooking != null) {
                 itemDto.setLastBooking(new LastBooking(lastBooking.getId(), lastBooking.getBooker().getId()));
-
             }
 
             List<Comment> addComment = comments.stream()
@@ -151,11 +147,8 @@ public class ItemServiceImpl implements ItemService {
             itemDto.setComments(addComment.stream().map(this::toCommentDto).collect(Collectors.toList()));
             itemDtoList.add(itemDto);
         }
-
-
         return itemDtoList;
     }
-
 
     @Override
     public List<ItemDto> search(String request) {
@@ -174,21 +167,23 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
-        if (!commentCheck(itemId,userId)) {
-            throw new WrongParameterException("Вы не пользовались вещью (наверно)");
-        }
+        LocalDateTime now = LocalDateTime.now();
+        Item item;
+        item = itemRepository.getById(itemId);
         User author = UserMapper.toUser(userService.getById(userId));
-        author.setId(userId);
-        Comment comment = Comment.builder()
-                .text(commentDto.getText())
-                .item(itemRepository.getById(itemId))
-                .author(author)
-                .created(LocalDateTime.now())
-                .build();
+        Comment comment = new Comment();
+        comment.setText(commentDto.getText());
+        comment.setItem(item);
+        comment.setAuthor(author);
+        comment.setCreated(now);
+        if (!commentCheck(itemId,userId)) {
+            throw new WrongParameterException("Вы не пользовались вещью");
+        }
         return toCommentDto(commentRepository.save(comment));
     }
 
-    private CommentDto toCommentDto(Comment comment) {
+    @Override
+    public CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
                 .created(comment.getCreated())
@@ -198,7 +193,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean commentCheck(Long itemId, Long authorId) {
-        List<Booking> commentBookings = itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
+        List<Booking> commentBookings =
+                itemRepository.commentCheck(itemId, authorId, LocalDateTime.now(), Status.APPROVED);
         if (commentBookings.size() == 0) {
             return false;
         } else {
@@ -210,19 +206,8 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments = new ArrayList<>();
         comments.addAll(commentRepository.findAllByItem(item));
         List<CommentDto> commentDtoList = new ArrayList<>();
-        for (Comment c: comments) {
-            commentDtoList.add(toCommentDto(c));
-        }
+        comments.stream().forEach(comment -> commentDtoList.add(toCommentDto(comment)));
         return commentDtoList;
-    }
-
-    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
-        try {
-            itemDto.setLastBooking(getLastBooking(id, userId));
-            itemDto.setNextBooking(getNextBooking(id, userId));
-        } finally {
-            return itemDto;
-        }
     }
 
     private LastBooking getLastBooking(Long itemId, Long userId) {
@@ -265,5 +250,10 @@ public class ItemServiceImpl implements ItemService {
         } catch (RuntimeException e) {
             throw new NotFoundException("Юзер с ID " + userId + " не найден " + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public List<Item> getItemsByRequest(Long requestId) {
+        return itemRepository.getByRequestOrderById(requestId);
     }
 }

@@ -37,9 +37,15 @@ public class ItemController {
     }
 
     @GetMapping
-    private ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") long userId,
+                                      @RequestParam(required = false) Integer from,
+                                      @RequestParam(required = false) Integer size) {
         checkId(userId);
-        return itemClient.getAllByOwnerId(userId);
+        if (from == null || size == null) {
+            return itemClient.getItems(userId);
+        } else {
+            return itemClient.getItems(userId, from, size);
+        }
     }
 
     @GetMapping("/search")

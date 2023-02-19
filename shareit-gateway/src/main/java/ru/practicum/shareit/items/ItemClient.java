@@ -24,6 +24,7 @@ public class ItemClient extends BaseClient {
                         .build()
         );
     }
+
     public ResponseEntity<Object> create(ItemDto itemDto, Long userId) {
         return post("",userId,itemDto);
     }
@@ -33,7 +34,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getByID(Long id, Long userId) {
-        return get("/"+id, userId);
+        return get("/" + id, userId);
     }
 
     public ResponseEntity<Object> getAllByOwnerId(Long userId) {

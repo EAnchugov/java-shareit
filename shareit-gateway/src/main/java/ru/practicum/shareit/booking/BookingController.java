@@ -41,6 +41,7 @@ public class BookingController {
 		log.info("Get booking {}, userId={}", bookingId, userId);
 		return bookingClient.getBooking(userId, bookingId);
 	}
+
 	@PatchMapping("/{bookingId}")
 	public ResponseEntity<Object> setStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
 											@PathVariable Long bookingId,@RequestParam Boolean approved) {
@@ -48,6 +49,7 @@ public class BookingController {
 				" userId = {}, bookingId = {}, approved = {}", userId, bookingId, approved);
 		return bookingClient.update(userId, bookingId, approved);
 	}
+
 	@GetMapping("/owner")
 	public ResponseEntity<Object> getByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
 										   @RequestParam(defaultValue = "ALL") String state,

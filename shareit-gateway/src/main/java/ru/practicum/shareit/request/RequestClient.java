@@ -13,6 +13,7 @@ import ru.practicum.shareit.request.requestDto.RequestDtoInput;
 @Service
 public class RequestClient extends BaseClient {
     private static final String API_PREFIX = "/requests";
+
     @Autowired
     public RequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
@@ -32,10 +33,11 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAll(Long userId, Integer from, Integer size) {
-        return get("/all?from="+from+"&size="+size, userId);
+        return get("/all?from=" + from + "&size=" + size, userId);
     }
 
     public ResponseEntity<Object> getById(Long userId, Long requestId) {
-        return get("/"+requestId,userId);
+        return get("/" + requestId,userId);
     }
+
 }

@@ -56,6 +56,9 @@ public class ItemController {
     }
 
     private void checkId(Long id) {
-        if (id < 1){throw new IllegalArgumentException("id не может быть меньше 1");}
+        if (id < 1) {
+            throw new IllegalArgumentException("id не может быть меньше 1");
+            }
+
     }
 }

@@ -25,8 +25,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getBookings(long userId, String state, Integer from, Integer size) {
-        return get("?state="+state+"&from="+from+"&size="+size, userId);
-//        return get("/", userId);
+        return get("?state=" + state + "&from=" + from + "&size=" + size, userId);
     }
 
 
@@ -43,6 +42,6 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllByOwner(Long userId, String state, Integer from, Integer size) {
-        return get("/owner?state="+ state +"&from="+ from +"&size="+size, userId);
+        return get("/owner?state=" + state + "&from=" + from + "&size=" + size, userId);
     }
 }

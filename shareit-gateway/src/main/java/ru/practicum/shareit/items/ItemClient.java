@@ -8,7 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.items.controller.CommentDto;
+import ru.practicum.shareit.items.controller.CommentClentDto;
 import ru.practicum.shareit.items.dto.ItemDto;
 
 import java.util.Map;
@@ -42,8 +42,14 @@ public class ItemClient extends BaseClient {
         return get("",userId);
     }
 
-    public ResponseEntity<Object> createComment(Long itemId, Long userId, CommentDto commentDto) {
-        return post("/" + itemId + "/comment", userId,commentDto);
+    public ResponseEntity<Object> createComment(Long itemId, Long userId, CommentClentDto commentClentDto) {
+        System.out.println("-----------------");
+        System.out.println("/" + itemId + "/comment");
+        System.out.println(userId);
+        System.out.println(commentClentDto);
+        System.out.println("-----------------");
+
+        return post("/" + itemId + "/comment", userId,commentClentDto);
     }
 
     public ResponseEntity<Object> search(String text) {

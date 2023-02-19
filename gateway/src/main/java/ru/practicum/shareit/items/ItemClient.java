@@ -44,11 +44,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getItems(long userId, int from, int size) {
-        Map<String, Object> parameters = Map.of(
-                "from", from,
-                "size", size
-        );
-        return get("?from={from}&size={size}", userId, parameters);
+        return get("?from=" + from + "&size=" + size, userId);
     }
 
     public ResponseEntity<Object> createComment(Long itemId, Long userId, CommentClentDto commentClentDto) {

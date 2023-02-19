@@ -7,7 +7,6 @@ import ru.practicum.shareit.items.ItemClient;
 import ru.practicum.shareit.items.dto.ItemDto;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/items")

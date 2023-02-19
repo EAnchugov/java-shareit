@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.controller;
+package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;

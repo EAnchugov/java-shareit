@@ -2,16 +2,10 @@ package ru.practicum.shareit.request.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.cassandra.CassandraProperties;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.items.ItemClient;
-import ru.practicum.shareit.items.dto.ItemDto;
-
-import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
+import ru.practicum.shareit.request.RequestClient;
+import ru.practicum.shareit.request.requestDto.RequestDtoInput;
 
 @RestController
 @RequestMapping(path = "/requests")

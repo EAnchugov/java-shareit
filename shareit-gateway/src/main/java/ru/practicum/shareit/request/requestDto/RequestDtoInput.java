@@ -1,9 +1,8 @@
-package ru.practicum.shareit.request.controller;
+package ru.practicum.shareit.request.requestDto;
 
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter

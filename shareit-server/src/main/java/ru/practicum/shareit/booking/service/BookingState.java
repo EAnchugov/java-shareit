@@ -14,7 +14,7 @@ public enum BookingState {
         try {
             return BookingState.valueOf(state);
         } catch (IllegalArgumentException e) {
-            throw new WrongParameterException("Unknown state: UNSUPPORTED_STATUS");
+            throw new WrongParameterException("Unknown state: " + state);
         }
     }
 }

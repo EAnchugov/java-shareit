@@ -46,12 +46,6 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createComment(Long itemId, Long userId, CommentClentDto commentClentDto) {
-        System.out.println("-----------------");
-        System.out.println("/" + itemId + "/comment");
-        System.out.println(userId);
-        System.out.println(commentClentDto);
-        System.out.println("-----------------");
-
         return post("/" + itemId + "/comment", userId,commentClentDto);
     }
 

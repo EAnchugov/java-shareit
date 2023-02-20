@@ -1,6 +1,7 @@
 package ru.practicum.shareit.items.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.items.ItemClient;
@@ -38,14 +39,10 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") long userId,
-                                      @RequestParam(required = false) Integer from,
-                                      @RequestParam(required = false) Integer size) {
+                                      @RequestParam(required = false, defaultValue = "1") Integer from,
+                                      @RequestParam(required = false, defaultValue = "20") Integer size) {
         checkId(userId);
-        if (from == null || size == null) {
-            return itemClient.getItems(userId);
-        } else {
             return itemClient.getItems(userId, from, size);
-        }
     }
 
     @GetMapping("/search")

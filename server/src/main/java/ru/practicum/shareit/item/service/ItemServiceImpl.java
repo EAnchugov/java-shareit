@@ -39,7 +39,6 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepositoryJpa commentRepository;
 
     private final BookingRepository bookingRepository;
-    private final Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     @Transactional
@@ -110,10 +109,10 @@ public class ItemServiceImpl implements ItemService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Item> items = itemRepository.findAllByOwner(user);
-            Map<Item, List<Booking>> approvedBookings =  bookingRepository.findApprovedForItems(items, sort)
+            Map<Item, List<Booking>> approvedBookings =  bookingRepository.findApprovedForItems(items,
+                    Sort.by(Sort.Direction.DESC, "start"))
                         .stream()
                         .collect(groupingBy(Booking::getItem, toList()));
-        System.out.println(approvedBookings.toString());
         LocalDateTime now = LocalDateTime.now();
         List<ItemDto> itemDtoList = new ArrayList<>();
         List<Comment> comments =
@@ -126,7 +125,6 @@ public class ItemServiceImpl implements ItemService {
                     .filter(booking -> (booking.getStart().isAfter(now)))
                     .reduce((first, second) -> second)
                     .orElse(null);
-
             if (nextBooking != null) {
                 itemDto.setNextBooking(
                         new NextBooking(nextBooking.getId(), nextBooking.getBooker().getId()));
@@ -140,7 +138,6 @@ public class ItemServiceImpl implements ItemService {
             if (lastBooking != null) {
                 itemDto.setLastBooking(new LastBooking(lastBooking.getId(), lastBooking.getBooker().getId()));
             }
-
             List<Comment> addComment = comments.stream()
                     .filter(comment -> (itemDto.getId().equals(comment.getItem().getId())))
                     .collect(Collectors.toList());
@@ -148,6 +145,15 @@ public class ItemServiceImpl implements ItemService {
             itemDtoList.add(itemDto);
         }
         return itemDtoList;
+    }
+
+    private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {
+        try {
+            itemDto.setLastBooking(getLastBooking(id, userId));
+            itemDto.setNextBooking(getNextBooking(id, userId));
+        } finally {
+            return itemDto;
+        }
     }
 
     @Override

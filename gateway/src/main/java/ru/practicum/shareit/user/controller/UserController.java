@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.valid.Create;
 import ru.practicum.shareit.user.valid.Update;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
 @RestController
@@ -21,7 +22,7 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestBody @Validated(Create.class) UserDto userDto) {
+    public ResponseEntity<Object> create(@RequestBody @Validated(Create.class) @Valid UserDto userDto) {
         log.info("Пользователь создан");
         return userClient.create(userDto);
     }

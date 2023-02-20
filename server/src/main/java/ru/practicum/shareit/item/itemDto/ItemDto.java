@@ -13,11 +13,8 @@ import java.util.List;
 @Builder
 public class ItemDto {
     private Long id;
-    @NotBlank
     private String name;
-    @NotBlank
     private String description;
-    @NotNull
     private Boolean available;
     private LastBooking lastBooking;
     private NextBooking nextBooking;

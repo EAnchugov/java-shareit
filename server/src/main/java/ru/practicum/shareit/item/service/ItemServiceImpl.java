@@ -110,7 +110,7 @@ public class ItemServiceImpl implements ItemService {
         User user = UserMapper.toUser(userService.getById(userId));
         user.setId(userId);
         List<Item> items = itemRepository.findAllByOwner(user);
-            Map<Item, List<Booking>> approvedBookings =  bookingRepository.findApprovedForItems(items)
+            Map<Item, List<Booking>> approvedBookings =  bookingRepository.findApprovedForItems(items, sort)
                         .stream()
                         .collect(groupingBy(Booking::getItem, toList()));
         System.out.println(approvedBookings.toString());

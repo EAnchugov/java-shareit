@@ -37,7 +37,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBookerAndStatusOrderByStartDesc(User user, Status status, Pageable pageable);
 
    @Query("select b from Booking b where b.item in ?1 and b.status = 'APPROVED' order by b.item.id")
-    List<Booking> findApprovedForItems(List<Item> items, Sort sort);
+    List<Booking> findApprovedForItems(List<Item> items);
 
 
 

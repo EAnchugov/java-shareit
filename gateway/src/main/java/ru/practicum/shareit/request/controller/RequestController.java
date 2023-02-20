@@ -3,9 +3,11 @@ package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.RequestClient;
 import ru.practicum.shareit.request.requestDto.RequestDtoInput;
+import ru.practicum.shareit.valid.Create;
 
 @RestController
 @RequestMapping(path = "/requests")
@@ -16,7 +18,7 @@ public class RequestController {
     @PostMapping
     public ResponseEntity<Object> addRequest(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody RequestDtoInput input
+            @RequestBody  @Validated(Create.class) RequestDtoInput input
     ) {
         return requestClient.create(userId,input);
 

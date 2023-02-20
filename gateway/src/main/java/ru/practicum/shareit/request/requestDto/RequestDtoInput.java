@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.requestDto;
 
 import lombok.*;
+import ru.practicum.shareit.valid.Create;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 public class RequestDtoInput {
     private Long id;
     private Long requestorId;
-    @NotBlank(message = "Описание не может быть пустым или состоять только из пробелов")
+    @NotBlank(groups = {Create.class},message = "Описание не может быть пустым или состоять только из пробелов")
     private String description;
     private LocalDateTime created = LocalDateTime.now();
 }

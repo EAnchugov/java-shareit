@@ -22,7 +22,7 @@ public class RequestController {
     @PostMapping
     public RequestDtoOut addRequest(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody @Validated(Create.class) RequestDtoInput input
+            @RequestBody RequestDtoInput input
             ) {
         return RequestMapper.requestToOutDto(requestService.create(userId,input));
 

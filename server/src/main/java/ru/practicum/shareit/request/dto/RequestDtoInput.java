@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
 public class RequestDtoInput {
     private Long id;
     private Long requestorId;
-    @NotBlank(groups = {Create.class})
-    @NotNull
+
     private String description;
     private LocalDateTime created = LocalDateTime.now();
 }

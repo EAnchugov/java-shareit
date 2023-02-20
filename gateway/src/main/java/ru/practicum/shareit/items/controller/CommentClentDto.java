@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 public class CommentClentDto {
     private long id;
-    @NotBlank(message = "Текст комментария не может быть пустым")
+    @NotBlank
     @NotNull
     private String text;
     private String authorName;

@@ -38,10 +38,16 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> get(@RequestHeader("X-Sharer-User-Id") long userId,
-                                      @RequestParam(required = false, defaultValue = "1") Integer from,
-                                      @RequestParam(required = false, defaultValue = "20") Integer size) {
+                                      @RequestParam(required = false) Integer from,
+                                      @RequestParam(required = false) Integer size) {
+//        checkId(userId);
+//            return itemClient.getItems(userId, from, size);
         checkId(userId);
+        if (from == null || size == null) {
+            return itemClient.getItems(userId);
+        } else {
             return itemClient.getItems(userId, from, size);
+        }
     }
 
     @GetMapping("/search")

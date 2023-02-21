@@ -25,6 +25,7 @@ public class BookingController {
 			@RequestParam(name = "state", defaultValue = "ALL") String state,
 			@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
 			@Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+		log.info("Get booking {}, state {}, from{}, size{}",state,from,size);
 		return bookingClient.getBookings(userId, state, from, size);
 	}
 

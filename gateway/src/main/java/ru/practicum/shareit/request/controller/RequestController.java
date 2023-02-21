@@ -9,6 +9,9 @@ import ru.practicum.shareit.request.RequestClient;
 import ru.practicum.shareit.request.requestDto.RequestDtoInput;
 import ru.practicum.shareit.valid.Create;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
@@ -32,8 +35,8 @@ public class RequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @RequestParam(value = "from", defaultValue = "0") Integer from,
-                                      @RequestParam(value = "size", defaultValue = "20") Integer size) {
+                                      @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                      @Positive @RequestParam(value = "size", defaultValue = "20") Integer size) {
         return requestClient.getAll(userId, from,size);
     }
 

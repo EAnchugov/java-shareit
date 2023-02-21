@@ -145,7 +145,7 @@ public class ItemServiceImpl implements ItemService {
             itemDto.setComments(addComment.stream().sorted().map(this::toCommentDto).collect(Collectors.toList()));
             itemDtoList.add(itemDto);
         }
-        return itemDtoList;
+        return itemDtoList.stream().sorted((i1,i2) -> i1.getId().compareTo(i2.getId())).collect(Collectors.toList());
     }
 
     private ItemDto itemDtoBuild(ItemDto itemDto,Long id, Long userId) {

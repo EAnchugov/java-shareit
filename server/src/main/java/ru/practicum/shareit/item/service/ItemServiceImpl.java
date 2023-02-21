@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static ru.practicum.shareit.item.itemDto.ItemMapper.toItemDto;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         Item save = itemRepository.save(item);
-        return ItemMapper.toItemDto(save);
+        return toItemDto(save);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
             }
         item.setId(itemId);
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        return toItemDto(itemRepository.save(item));
     }
 
     @Override
@@ -94,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
         } else {
             throw new NotFoundException("Нет вещи с id = " + id);
         }
-        ItemDto itemDto = ItemMapper.toItemDto(item);
+        ItemDto itemDto = toItemDto(item);
         itemDto.setComments(getCommentsByItem(item));
         try {
             itemDto.setLastBooking(getLastBooking(id, userId));
@@ -141,7 +142,7 @@ public class ItemServiceImpl implements ItemService {
             List<Comment> addComment = comments.stream()
                     .filter(comment -> (itemDto.getId().equals(comment.getItem().getId())))
                     .collect(Collectors.toList());
-            itemDto.setComments(addComment.stream().map(this::toCommentDto).collect(Collectors.toList()));
+            itemDto.setComments(addComment.stream().sorted().map(this::toCommentDto).collect(Collectors.toList()));
             itemDtoList.add(itemDto);
         }
         return itemDtoList;
@@ -164,7 +165,7 @@ public class ItemServiceImpl implements ItemService {
                 if (item.getAvailable() &&
                         item.getDescription().toLowerCase().contains(request.toLowerCase()) ||
                         item.getName().toLowerCase().contains(request.toLowerCase())) {
-                    items.add(ItemMapper.toItemDto(item));
+                    items.add(toItemDto(item));
                 }
             }
         }

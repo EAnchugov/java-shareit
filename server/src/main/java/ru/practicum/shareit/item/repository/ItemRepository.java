@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
+
     List<Item> findAllByOwner(User owner);
 
     @Query("select b from Booking b left join fetch b.item AS i where i.id = :itemId " +
